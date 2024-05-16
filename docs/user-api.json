@@ -1,0 +1,1580 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "PML SHIP RESTful API",
+        "description": "OpenAPI for PML SHIP RESTful API",
+        "version": "1.0.0",
+        "contact": {
+            "name": "FADHIL PRAWIRA",
+            "email": "fadhilprawira87@gmail.com",
+            "url": "https://fadhilprawira.xyz/"
+        },
+        "license": {
+            "name": "Apache-2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        }
+    },
+    "servers": [
+        {
+            "description": "PML SHIP RESTful API Server",
+            "url": "http://localhost:8000"
+        }
+    ],
+    "externalDocs": {
+        "description": "Github Fadhil Prawira",
+        "url": "https://github.com/FadhilPrawira"
+    },
+    "paths": {
+        "/api/register": {
+            "post": {
+                "description": "Register new user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "fadhil": {
+                                    "description": "Register user Fadhil",
+                                    "value": {
+                                        "name": "Fadhil Prawira",
+                                        "phone": "085231806161",
+                                        "email": "fadhilprawira87@gmail.com",
+                                        "password": "password777",
+                                        "company_name": "PT Adaro Energy Indonesia Tbk",
+                                        "company_address": "Menara Karya lantai 23, JL. H. R. Rasuna Said Blok X-5, Kav. 1-2 Jakarta",
+                                        "company_phone": "021-25533000",
+                                        "company_email": "marketing@adaro.com",
+                                        "company_NPWP": "02.399.244.9-091.000",
+                                        "company_akta_url": "adaro_comany_akta.pdf"
+                                    }
+                                },
+                                "dani": {
+                                    "description": "Register user Dani",
+                                    "value": {
+                                        "name": "Dani Sefianto",
+                                        "phone": "081617708604",
+                                        "email": "sefiantodani@gmail.com",
+                                        "password": "password777",
+                                        "company_name": "PT Kideco Jaya Agung",
+                                        "company_address": "Graha Mitra, 1st Floor Jl. Jend. Gatot Subroto Kav. 21 Jakarta Selatan",
+                                        "company_phone": "+62 21 525 7626",
+                                        "company_email": "corporate.communications@kideco.co.id",
+                                        "company_NPWP": "01.060.102.9-091.000",
+                                        "company_akta_url": "kideco_comany_akta.pdf"
+                                    }
+                                },
+                                "qory": {
+                                    "description": "Register user Qory",
+                                    "value": {
+                                        "name": "Qory Wiljanova",
+                                        "phone": "081363601166",
+                                        "email": "qorywiljanova2016@gmail.com",
+                                        "password": "password777",
+                                        "company_name": "PT Bukit Makmur Mandiri Utama",
+                                        "company_address": "South Quarter Tower A, Penthouse Floor Jl. R. A Kartini Kav. 8, Cilandak Barat, Jakarta",
+                                        "company_phone": "+6221 661 3636",
+                                        "company_email": "buma@deltadunia.com",
+                                        "company_NPWP": "01.837.370.4-091.000",
+                                        "company_akta_url": "buma_comany_akta.pdf"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "phone",
+                                    "email",
+                                    "password",
+                                    "company_name",
+                                    "company_address",
+                                    "company_phone",
+                                    "company_email",
+                                    "company_npwp",
+                                    "company_akta_url"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "company_name": {
+                                        "type": "string"
+                                    },
+                                    "company_address": {
+                                        "type": "string"
+                                    },
+                                    "company_phone": {
+                                        "type": "string"
+                                    },
+                                    "company_email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "company_NPWP": {
+                                        "type": "string"
+                                    },
+                                    "company_akta_url": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success register user",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success register user",
+                                        "value": {
+                                            "data": {
+                                                "id": 1,
+                                                "role": "user",
+                                                "name": "Fadhil Prawira",
+                                                "email": "fadhilprawira87@gmail.com"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "All field is empty": {
+                                        "description": "All field is empty",
+                                        "value": {
+                                            "errors": {
+                                                "name": [
+                                                    "Name is required"
+                                                ],
+                                                "phone": [
+                                                    "Phone is required"
+                                                ],
+                                                "email": [
+                                                    "Email is required"
+                                                ],
+                                                "password": [
+                                                    "Password is required"
+                                                ],
+                                                "company_name": [
+                                                    "Company name is required"
+                                                ],
+                                                "company_address": [
+                                                    "Company address is required"
+                                                ],
+                                                "company_phone": [
+                                                    "Company phone is required"
+                                                ],
+                                                "company_email": [
+                                                    "Company email is required"
+                                                ],
+                                                "company_NPWP": [
+                                                    "Company NPWP is required"
+                                                ],
+                                                "company_akta_url": [
+                                                    "Company akta url is required"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email already exist": {
+                                        "description": "Email already exist",
+                                        "value": {
+                                            "errors": {
+                                                "email": "Email already exists"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "description": "Login user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "fadhil": {
+                                    "description": "Login user Fadhil",
+                                    "value": {
+                                        "email": "fadhilprawira87@gmail.com",
+                                        "password": "password777"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success login",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "fadhil": {
+                                        "description": "Success login",
+                                        "value": {
+                                            "data": {
+                                                "id": 1,
+                                                "role": "user",
+                                                "name": "Fadhil Prawira",
+                                                "email": "fadhilprawira87@gmail.com"
+                                            },
+                                            "token": "2|imS4Kotso6M8lWTcHnTWv4pnBT81x6XptSvQbRw11631e218"
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                }
+                                            }
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Empty field",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Email field is empty": {
+                                        "description": "Email field is empty",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email is required"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Password field is empty": {
+                                        "description": "Password field is empty",
+                                        "value": {
+                                            "errors": {
+                                                "password": [
+                                                    "Password is required"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email and password field is empty": {
+                                        "description": "Email and password field is empty",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email is required"
+                                                ],
+                                                "password": [
+                                                    "Password is required"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email field is empty and password is less than 8 characters": {
+                                        "description": "Email and password field is empty",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email is required"
+                                                ],
+                                                "password": [
+                                                    "Password must be at least 8 characters"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email invalid pattern": {
+                                        "description": "Email invalid pattern",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email must be a valid email address"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email invalid pattern and password field is empty": {
+                                        "description": "Email invalid pattern",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email must be a valid email address"
+                                                ],
+                                                "password": [
+                                                    "Password is required"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Email invalid pattern and password is less than 8 characters": {
+                                        "description": "Email invalid pattern",
+                                        "value": {
+                                            "errors": {
+                                                "email": [
+                                                    "Email must be a valid email address"
+                                                ],
+                                                "password": [
+                                                    "Password must be at least 8 characters"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Password is less than 8 characters": {
+                                        "description": "Password is less than 8 characters",
+                                        "value": {
+                                            "errors": {
+                                                "password": [
+                                                    "Password must be at least 8 characters"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Email or password is incorrect": {
+                                        "description": "User unauthorized",
+                                        "value": {
+                                            "errors": {
+                                                "message": "Email or password is incorrect."
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "description": "Get current user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get current user",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success get current user",
+                                        "value": {
+                                            "data": {
+                                                "id": 1,
+                                                "role": "user",
+                                                "name": "Fadhil Prawira",
+                                                "phone": "085231806161",
+                                                "email": "fadhilprawira87@gmail.com",
+                                                "email_verified_at": null,
+                                                "company_name": "PT Adaro Energy Indonesia Tbk",
+                                                "company_address": "Menara Karya lantai 23, JL. H. R. Rasuna Said Blok X-5, Kav. 1-2 Jakarta",
+                                                "company_phone": "021-25533000",
+                                                "company_email": "marketing@adaro.com",
+                                                "company_NPWP": "02.399.244.9-091.000",
+                                                "company_akta_url": "adaro_comany_akta.pdf",
+                                                "created_at": "2024-05-14T01:33:13.000000Z",
+                                                "updated_at": "2024-05-14T01:33:13.000000Z",
+                                                "deleted_at": null
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "admin",
+                                                        "role"
+                                                    ]
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_name": {
+                                                    "type": "string"
+                                                },
+                                                "company_address": {
+                                                    "type": "string"
+                                                },
+                                                "company_phone": {
+                                                    "type": "string"
+                                                },
+                                                "company_email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_NPWP": {
+                                                    "type": "string"
+                                                },
+                                                "company_akta_url": {
+                                                    "type": "string"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "deleted_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update some parameter of current user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Update current user",
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "success": {
+                                    "description": "Update current user",
+                                    "value": {
+                                        "name": "Fadhil Edited",
+                                        "phone": "0852 Edited",
+                                        "email": "fadhilEDITED@gmail.com",
+                                        "password": "passwordEDITED",
+                                        "company_name": "PT Adaro EDITED",
+                                        "company_address": "Menara EDITED",
+                                        "company_NPWP": "02.399.EDITED",
+                                        "company_phone": "021-EDITED",
+                                        "company_email": "marketg@EDITED.com"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "company_name": {
+                                        "type": "string"
+                                    },
+                                    "company_address": {
+                                        "type": "string"
+                                    },
+                                    "company_phone": {
+                                        "type": "string"
+                                    },
+                                    "company_email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "company_NPWP": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success update current user",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success update current user",
+                                        "value": {
+                                            "data": {
+                                                "id": 1,
+                                                "role": "user",
+                                                "name": "Fadhil Edited",
+                                                "email": "fadhilEDITED@gmail.com",
+                                                "company_name": "PT Adaro EDITED",
+                                                "company_address": "Menara EDITED",
+                                                "company_phone": "021-EDITED",
+                                                "company_email": "marketg@EDITED.com",
+                                                "company_NPWP": "02.399.EDITED"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_name": {
+                                                    "type": "string"
+                                                },
+                                                "company_address": {
+                                                    "type": "string"
+                                                },
+                                                "company_phone": {
+                                                    "type": "string"
+                                                },
+                                                "company_email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_NPWP": {
+                                                    "type": "string"
+                                                },
+                                                "company_akta_url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Name is more than 100 characters": {
+                                        "description": "Name is more than 100 characters",
+                                        "value": {
+                                            "errors": {
+                                                "name": [
+                                                    "Name must be at most 100 characters"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "description": "Search users and output in page",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success search users",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success get page 1",
+                                        "value": {
+                                            "current_page": 1,
+                                            "data": [
+                                                {
+                                                    "id": 2,
+                                                    "role": "user",
+                                                    "name": "Dani Sefianto",
+                                                    "phone": "081617708604",
+                                                    "email": "sefiantodani@gmail.com",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PJ Ardianto Tbk",
+                                                    "company_address": "Psr. Yosodipuro No. 300, Pontianak 34038, Pabar",
+                                                    "company_phone": "0748 8651 8960",
+                                                    "company_email": "namaga.victoria@example.org",
+                                                    "company_NPWP": "141422153",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/0077ee?text=fugit",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 3,
+                                                    "role": "user",
+                                                    "name": "Qory Wiljanova",
+                                                    "phone": "081363601166",
+                                                    "email": "qorywiljanova2016@gmail.com",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "Yayasan Putra Dongoran",
+                                                    "company_address": "Ds. Baladewa No. 861, Bandar Lampung 84147, Riau",
+                                                    "company_phone": "0602 6977 162",
+                                                    "company_email": "namaga.kamaria@example.org",
+                                                    "company_NPWP": "877286075",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/0055ff?text=nihil",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 4,
+                                                    "role": "user",
+                                                    "name": "Radit Prasetya",
+                                                    "phone": null,
+                                                    "email": "eli04@example.org",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "UD Laksmiwati",
+                                                    "company_address": "Kpg. Barat No. 630, Administrasi Jakarta Utara 25221, Sulut",
+                                                    "company_phone": "0317 5720 686",
+                                                    "company_email": "llazuardi@example.org",
+                                                    "company_NPWP": "276545133",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/00bb66?text=ut",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 5,
+                                                    "role": "user",
+                                                    "name": "Budi Kusumo",
+                                                    "phone": null,
+                                                    "email": "putri.namaga@example.org",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PJ Anggraini Safitri",
+                                                    "company_address": "Ds. Bakin No. 593, Gorontalo 30496, Pabar",
+                                                    "company_phone": "(+62) 588 8431 5590",
+                                                    "company_email": "luthfi06@example.com",
+                                                    "company_NPWP": "718896841",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/00cc99?text=sit",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 6,
+                                                    "role": "user",
+                                                    "name": "Hamima Yuliarti",
+                                                    "phone": null,
+                                                    "email": "hasanah.raina@example.com",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "Yayasan Kurniawan Simanjuntak",
+                                                    "company_address": "Ds. Tangkuban Perahu No. 995, Ambon 17595, Jatim",
+                                                    "company_phone": "0471 1051 7964",
+                                                    "company_email": "safina.laksita@example.net",
+                                                    "company_NPWP": "889943141",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/0077ff?text=voluptas",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 7,
+                                                    "role": "user",
+                                                    "name": "Cinthia Andriani",
+                                                    "phone": null,
+                                                    "email": "wnapitupulu@example.com",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PD Usada",
+                                                    "company_address": "Jln. Imam No. 718, Gorontalo 29980, Bengkulu",
+                                                    "company_phone": "(+62) 532 7078 158",
+                                                    "company_email": "alambana.irawan@example.net",
+                                                    "company_NPWP": "813479313",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/0033ee?text=perspiciatis",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 8,
+                                                    "role": "user",
+                                                    "name": "Jaswadi Wibowo",
+                                                    "phone": null,
+                                                    "email": "jane.widodo@example.net",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PT Suwarno",
+                                                    "company_address": "Gg. Bawal No. 492, Padang 28835, Jateng",
+                                                    "company_phone": "0964 2978 6606",
+                                                    "company_email": "edison92@example.org",
+                                                    "company_NPWP": "667458007",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/00bb55?text=autem",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 9,
+                                                    "role": "user",
+                                                    "name": "Kenzie Sitompul",
+                                                    "phone": null,
+                                                    "email": "bahuraksa.nasyidah@example.net",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PD Prasasta Laksmiwati Tbk",
+                                                    "company_address": "Ki. Radio No. 756, Batam 24131, Jatim",
+                                                    "company_phone": "0500 5875 246",
+                                                    "company_email": "wsitompul@example.com",
+                                                    "company_NPWP": "648706603",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/003388?text=molestiae",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 10,
+                                                    "role": "user",
+                                                    "name": "Endah Alika Namaga M.TI.",
+                                                    "phone": null,
+                                                    "email": "lestari.febi@example.org",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "PJ Nugroho Puspasari (Persero) Tbk",
+                                                    "company_address": "Ds. Yogyakarta No. 270, Kotamobagu 49995, Sumut",
+                                                    "company_phone": "(+62) 806 1292 947",
+                                                    "company_email": "bakiman.permadi@example.org",
+                                                    "company_NPWP": "765003957",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/003355?text=voluptatem",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                },
+                                                {
+                                                    "id": 11,
+                                                    "role": "user",
+                                                    "name": "Unjani Anggraini",
+                                                    "phone": null,
+                                                    "email": "nardi.firmansyah@example.org",
+                                                    "email_verified_at": "2024-05-14T05:35:59.000000Z",
+                                                    "company_name": "Fa Winarsih Latupono",
+                                                    "company_address": "Jln. Sutarjo No. 612, Tarakan 33369, Jabar",
+                                                    "company_phone": "(+62) 839 266 142",
+                                                    "company_email": "kprasasta@example.com",
+                                                    "company_NPWP": "94177204",
+                                                    "company_akta_url": "https://via.placeholder.com/640x480.png/0099aa?text=quia",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z",
+                                                    "deleted_at": null
+                                                }
+                                            ],
+                                            "first_page_url": "http://127.0.0.1:8000/api/users?page=1",
+                                            "from": 1,
+                                            "last_page": 6,
+                                            "last_page_url": "http://127.0.0.1:8000/api/users?page=6",
+                                            "links": [
+                                                {
+                                                    "url": null,
+                                                    "label": "pagination.previous",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=1",
+                                                    "label": "1",
+                                                    "active": true
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=2",
+                                                    "label": "2",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=3",
+                                                    "label": "3",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=4",
+                                                    "label": "4",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=5",
+                                                    "label": "5",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=6",
+                                                    "label": "6",
+                                                    "active": false
+                                                },
+                                                {
+                                                    "url": "http://127.0.0.1:8000/api/users?page=2",
+                                                    "label": "pagination.next",
+                                                    "active": false
+                                                }
+                                            ],
+                                            "next_page_url": "http://127.0.0.1:8000/api/users?page=2",
+                                            "path": "http://127.0.0.1:8000/api/users",
+                                            "per_page": 10,
+                                            "prev_page_url": null,
+                                            "to": 10,
+                                            "total": 52
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userId}": {
+            "get": {
+                "description": "Get user detail (for admin)",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "name": "userId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get detail user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "phone": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_name": {
+                                                    "type": "string"
+                                                },
+                                                "company_address": {
+                                                    "type": "string"
+                                                },
+                                                "company_phone": {
+                                                    "type": "string"
+                                                },
+                                                "company_email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "company_NPWP": {
+                                                    "type": "string"
+                                                },
+                                                "company_akta_url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "delete": {
+                "description": "Logout current user",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success logout user",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success logout user",
+                                        "value": {
+                                            "data": {
+                                                "message": "Logged out successfully"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ports": {
+            "get": {
+                "description": "Get all ports",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get all ports",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success get all ports",
+                                        "value": {
+                                            "data": [
+                                                {
+                                                    "id": 1,
+                                                    "name": "ADARO KELANIS",
+                                                    "address": "Barito Selatan, Kalimantan Tengah",
+                                                    "country_code": "ID",
+                                                    "unlocode": "",
+                                                    "latitude": "29.464365",
+                                                    "longitude": "154.055468",
+                                                    "open_time": "04:24:17",
+                                                    "close_time": "19:50:14",
+                                                    "image_url": "https://via.placeholder.com/640x480.png/006611?text=voluptatem",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z"
+                                                },
+                                                {
+                                                    "id": 2,
+                                                    "name": "Anchorage Area PML 1",
+                                                    "address": "",
+                                                    "country_code": "ID",
+                                                    "unlocode": "",
+                                                    "latitude": "76.702584",
+                                                    "longitude": "16.574227",
+                                                    "open_time": "10:28:00",
+                                                    "close_time": "15:33:01",
+                                                    "image_url": "https://via.placeholder.com/640x480.png/00cc77?text=quod",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z"
+                                                },
+                                                {
+                                                    "id": 3,
+                                                    "name": "ASAM2 - KINTAP",
+                                                    "address": "Tanah Laut, Kalimantan Selatan",
+                                                    "country_code": "ID",
+                                                    "unlocode": "",
+                                                    "latitude": "50.462102",
+                                                    "longitude": "-134.48063",
+                                                    "open_time": "04:27:28",
+                                                    "close_time": "19:27:58",
+                                                    "image_url": "https://via.placeholder.com/640x480.png/009900?text=in",
+                                                    "created_at": "2024-05-14T05:35:59.000000Z",
+                                                    "updated_at": "2024-05-14T05:35:59.000000Z"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ports not found",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "Ports not found",
+                                        "value": {
+                                            "errors": {
+                                                "message": "No ports found"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order": {
+            "post": {
+                "description": "Request order port, date, and cargo",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "success": {
+                                    "description": "Request order",
+                                    "value": {
+                                        "port_of_loading_id": 5,
+                                        "port_of_discharge_id": 60,
+                                        "date_of_loading": "2024-05-11",
+                                        "date_of_discharge": "2024-05-18",
+                                        "cargo_description": "Raw Material",
+                                        "cargo_weight": "12,000 MT"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "port_of_loading_id": {
+                                        "type": "integer"
+                                    },
+                                    "port_of_discharge_id": {
+                                        "type": "integer"
+                                    },
+                                    "date_of_loading": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "date_of_discharge": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "cargo_description": {
+                                        "type": "string"
+                                    },
+                                    "cargo_weight": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success order port, date, and cargo",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "description": "Success set order port, date, and cargo",
+                                        "value": {
+                                            "data": {
+                                                "transaction_id": "TRX1715412818",
+                                                "order": {
+                                                    "port_of_loading_id": 5,
+                                                    "port_of_discharge_id": 60,
+                                                    "date_of_loading": "2024-05-11",
+                                                    "date_of_discharge": "2024-05-18",
+                                                    "cargo_description": "Raw Material",
+                                                    "cargo_weight": "12,000 MT"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "transaction_id": {
+                                                    "type": "string"
+                                                },
+                                                "order": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "port_of_loading_id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "port_of_discharge_id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "date_of_loading": {
+                                                            "type": "string",
+                                                            "format": "date"
+                                                        },
+                                                        "date_of_discharge": {
+                                                            "type": "string",
+                                                            "format": "date"
+                                                        },
+                                                        "cargo_description": {
+                                                            "type": "string"
+                                                        },
+                                                        "cargo_weight": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User unauthorized",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "failed": {
+                                        "description": "User unauthorized due to expired token or the user is not logged in yet",
+                                        "value": {
+                                            "data": {
+                                                "message": "User unauthorized"
+                                            }
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
