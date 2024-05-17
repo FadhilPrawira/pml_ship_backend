@@ -26,15 +26,15 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['max:100', 'string'],
-            'phone' => ['max:20', 'string'],
+            'name' => ['max:100'],
+            'phone' => ['max:20'],
             'email' => ['max:100', 'email'],
-            'password' => [Password::min(8), 'max:255'],
-            'company_name' => ['max:255', 'string'],
-            'company_address' => ['max:255', 'string'],
-            'company_phone' => ['max:20', 'string'],
+//            'password' => [Password::min(8), 'max:255'],
+            'company_name' => ['max:255'],
+            'company_address' => ['max:255'],
+            'company_phone' => ['max:20'],
             'company_email' => ['email', 'max:100'],
-            'company_NPWP' => ['max:20', 'string'],
+            'company_NPWP' => ['max:20'],
 
 
         ];
@@ -64,8 +64,8 @@ class UserUpdateRequest extends FormRequest
             'email.max' => 'Email must be at most 100 characters',
 
 
-            'password.min' => 'Password must be at least 8 characters',
-            'password.max' => 'Password must be at most 255 characters',
+//            'password.min' => 'Password must be at least 8 characters',
+//            'password.max' => 'Password must be at most 255 characters',
 
 
             'company_name.max' => 'Company name must be at most 255 characters',

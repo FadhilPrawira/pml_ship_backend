@@ -42,9 +42,9 @@ class UserController extends Controller
         if (isset($data['email'])) {
             $user->email = $data['email'];
         }
-        if (isset($data['password'])) {
-            Hash::make($data['password']);
-        }
+//        if (isset($data['password'])) {
+//            Hash::make($data['password']);
+//        }
         if (isset($data['company_name'])) {
             $user->company_name = $data['company_name'];
         }

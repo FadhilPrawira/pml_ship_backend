@@ -24,9 +24,22 @@
         "description": "Github Fadhil Prawira",
         "url": "https://github.com/FadhilPrawira"
     },
+    "tags": [
+        {
+            "name": "user",
+            "description": "Everything about your User",
+            "externalDocs": {
+                "description": "Operations about user",
+                "url": "https://github.com/FadhilPrawira"
+            }
+        }
+    ],
     "paths": {
         "/api/register": {
             "post": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Register new user",
                 "requestBody": {
                     "content": {
@@ -259,6 +272,9 @@
         },
         "/api/login": {
             "post": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Login user",
                 "requestBody": {
                     "content": {
@@ -484,6 +500,9 @@
         },
         "/api/user": {
             "get": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Get current user",
                 "parameters": [
                     {
@@ -617,6 +636,9 @@
                 }
             },
             "patch": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Update some parameter of current user",
                 "parameters": [
                     {
@@ -826,6 +848,9 @@
         },
         "/api/users": {
             "get": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Search users and output in page",
                 "parameters": [
                     {
@@ -1112,6 +1137,9 @@
         },
         "/api/users/{userId}": {
             "get": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Get user detail (for admin)",
                 "parameters": [
                     {
@@ -1241,6 +1269,9 @@
         },
         "/api/logout": {
             "delete": {
+                "tags": [
+                    "user"
+                ],
                 "description": "Logout current user",
                 "parameters": [
                     {
@@ -1314,6 +1345,9 @@
         },
         "/api/ports": {
             "get": {
+                "tags": [
+                    "order"
+                ],
                 "description": "Get all ports",
                 "parameters": [
                     {
@@ -1428,6 +1462,9 @@
         },
         "/api/order": {
             "post": {
+                "tags": [
+                    "order"
+                ],
                 "description": "Request order port, date, and cargo",
                 "parameters": [
                     {

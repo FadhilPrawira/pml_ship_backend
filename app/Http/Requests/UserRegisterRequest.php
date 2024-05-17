@@ -27,16 +27,16 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:100', 'string'],
-            'phone' => ['required', 'max:20', 'string'],
+            'name' => ['required', 'max:100'],
+            'phone' => ['required', 'max:20'],
             'email' => ['required', 'max:100', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8), 'max:255'],
-            'company_name' => ['required', 'max:255', 'string'],
-            'company_address' => ['required', 'max:255', 'string'],
-            'company_phone' => ['required', 'max:20', 'string'],
+            'company_name' => ['required', 'max:255'],
+            'company_address' => ['required', 'max:255'],
+            'company_phone' => ['required', 'max:20'],
             'company_email' => ['required', 'email', 'max:100'],
-            'company_NPWP' => ['required', 'max:20', 'string'],
-            'company_akta_url' => ['required', 'max:255', 'string'],
+            'company_NPWP' => ['required', 'max:20'],
+            'company_akta_url' => ['required', 'max:255'],
 
         ];
     }

@@ -11,29 +11,28 @@ class VesselRouteSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run()
     {
-        VesselRoute::factory()->create(
-            [
-                'port_of_loading_id' => '5',
-                'port_of_discharge_id'=>'60'
-            ]
+        $totalPorts = 61; // Jumlah total pelabuhan
 
-        );
-        VesselRoute::factory()->create(
-            [
-                'port_of_loading_id' => '5',
-                'port_of_discharge_id'=>'12'
-            ]
 
-        );
-        VesselRoute::factory()->create(
-            [
-                'port_of_loading_id' => '5',
-                'port_of_discharge_id'=>'30'
-            ]
 
-        );
+        // Membuat kombinasi rute antara pelabuhan-pelabuhan yang tersedia
+        for ($origin = 1; $origin <= $totalPorts; $origin++) {
+            for ($destination = 1; $destination <= $totalPorts; $destination++) {
+                // Jika pelabuhan asal tidak sama dengan pelabuhan tujuan
+                if ($origin != $destination) {
+                    // Simpan rute ke database menggunakan factory
+                    VesselRoute::factory()->create(
+                        [
+                            'port_of_loading_id' => $origin,
+                            'port_of_discharge_id' => $destination,
+                        ]
 
+                    );
+
+                }
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SummaryOrderResource extends JsonResource
+class QuotationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,12 +21,13 @@ class SummaryOrderResource extends JsonResource
                 "port_of_discharge_id" => $this->portOfDischarge['name'],
                 "date_of_loading" => $this->date_of_loading,
 
-                "cargo_description" => $this->cargo_description,
-                "cargo_weight" => $this->cargo_weight,
-                "shipper_name" => $this->shipper_name,
-                "shipper_address" => $this->shipper_address,
-                "consignee_name" => $this->consignee_name,
-                "consignee_address" => $this->consignee_address,
+//                Kapal A dipilih
+//
+//Rute: Lokasi terakhir kapal A- Pelabuhan loading - Pelabuhan discharge
+//Estimasi hari (estimasi waktu dari lokasi terakhir menuju pelabuhan loading + estimasi waktu perjalanan dengan barang[sudah termasuk lamanya bongkar muat] = 10 hari)
+//Estimasi biaya (biaya perjalanan dari lokasi tearkhir + biaya perjalanan)
+//
+
             ]
         ];
     }

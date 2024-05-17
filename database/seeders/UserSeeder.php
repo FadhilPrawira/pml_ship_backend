@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'role' => 'admin',
             'name' => 'Fadhil Prawira',
-            'phone' => '085231806161',
+
             'email' => 'fadhilprawira87@gmail.com',
             'password' => Hash::make('password777'),
         ]);
@@ -31,14 +31,14 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'role' => 'user',
             'name' => 'Dani Sefianto',
-            'phone' => '081617708604',
+
             'email' => 'sefiantodani@gmail.com',
             'password' => Hash::make('password777'),
         ]);
         User::factory()->create([
             'role' => 'user',
             'name' => 'Qory Wiljanova',
-            'phone' => '081363601166',
+
             'email' => 'qorywiljanova2016@gmail.com',
             'password' => Hash::make('password777'),
         ]);

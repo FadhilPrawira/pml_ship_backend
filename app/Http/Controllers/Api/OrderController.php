@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddShipperConsigneeRequest;
 use App\Http\Requests\OrderPortRequest;
+use App\Http\Requests\QuotationRequest;
 use App\Http\Requests\SummaryOrderRequest;
 use App\Http\Resources\AddShipperConsigneeResource;
 use App\Http\Resources\OrderPortResource;
@@ -63,29 +64,71 @@ class OrderController extends Controller
 
     public function summaryOrder(SummaryOrderRequest $request)
     {
-
-        //        Validate if user is authenticated
+        // Validate if user is authenticated
         $user = Auth::user();
-        //        Validate data
+
+        // Validate data
         $data = $request->validated();
 
-        $test = DB::table('orders')->join('ports', 'orders.port_id', '=', 'ports.id')->select('orders.*', 'ports.name as port_name')->get();
-//        $orderSummary = Order::where('transaction_id', $data['transaction_id'])->first();
-return response()->json($test, 200);
+        // Retrieve the order summary
+        $orderSummary = Order::with(['portOfLoading', 'portOfDischarge'])
+            ->where('transaction_id', $data['transaction_id'])
+            ->first();
 
-//        // If not found
-//        if (!$orderSummary) {
-//            throw new HttpResponseException(
-//                response([
-//                    "errors" => [
-//                        "message" => [
-//                            "Transaction not found."
-//                        ]
-//                    ]
-//                ], 404)
-//            );
-//        }
-//        //        return response()->json($order, 200);
-//        return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
+        // If not found, throw 404 error
+        if (!$orderSummary) {
+            throw new HttpResponseException(
+                response([
+                    "errors" => [
+                        "message" => [
+                            "Transaction not found."
+                        ]
+                    ]
+                ], 404)
+            );
+        }
+
+        // Return the response
+        return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
+    }
+
+    public function quotation(QuotationRequest $request)
+    {
+        // Validate if user is authenticated
+        $user = Auth::user();
+
+        // Validate data
+        $data = $request->validated();
+
+
+//        Do something here
+
+//        Load all kapal, rute, estimasi hari, estimasi biaya
+//        "transaction_id" => $this->transaction_id,
+//                "port_of_loading_id" => $this->portOfLoading['name'],
+//                "port_of_discharge_id" => $this->portOfDischarge['name'],
+//                "date_of_loading" => $this->date_of_loading,
+
+//                Kapal A dipilih
+//
+//Rute: Lokasi terakhir kapal A- Pelabuhan loading - Pelabuhan discharge
+//Estimasi hari (estimasi waktu dari lokasi terakhir menuju pelabuhan loading + estimasi waktu perjalanan dengan barang[sudah termasuk lamanya bongkar muat] = 10 hari)
+//Estimasi biaya (biaya perjalanan dari lokasi tearkhir + biaya perjalanan)
+//
+
+        // If not found, throw 404 error
+        if (!$orderSummary) {
+            throw new HttpResponseException(
+                response([
+                    "errors" => [
+                        "message" => [
+                            "Transaction not found."
+                        ]
+                    ]
+                ], 404)
+            );
+        }
+// Return the response
+        return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
     }
 }

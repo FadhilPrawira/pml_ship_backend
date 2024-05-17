@@ -40,13 +40,13 @@ class Order extends Model
 
     // TODO: Fix Eloquent Relationship (Many to One) to Port Model
     // Eloquent Relationship (Many to One) to Port Model
-    // public function port_of_discharge_id()
-    // {
-    //     return $this->belongsTo(Port::class, 'port_of_discharge_id');
-    // }
+    public function portOfLoading()
+    {
+        return $this->belongsTo(Port::class, 'port_of_loading_id');
+    }
 
-    // public function port_of_loading_id()
-    // {
-    //     return $this->belongsTo(Port::class, 'port_of_loading_id');
-    // }
+    public function portOfDischarge()
+    {
+        return $this->belongsTo(Port::class, 'port_of_discharge_id');
+    }
 }
