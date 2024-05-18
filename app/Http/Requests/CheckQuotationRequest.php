@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class QuotationRequest extends FormRequest
+class CheckQuotationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +25,6 @@ class QuotationRequest extends FormRequest
     {
         return [
             'transaction_id' => ['required'],
-            'port_of_loading_id' => ['required'],
-            'port_of_discharge_id' => ['required'],
-            'date_of_loading' => ['required'],
-
         ];
     }
 
@@ -48,9 +44,7 @@ class QuotationRequest extends FormRequest
     {
         return [
             'transaction_id.required' => 'Transaction id is required',
-            'port_of_loading_id.required' => 'Port of loading id is required',
-            'port_of_discharge_id.required' => 'Port of discharge id is required',
-            'date_of_loading.required' => 'Date of loading is required',
+
         ];
     }
 }

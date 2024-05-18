@@ -17,8 +17,24 @@ class VesselRoute extends Model
     protected $table = 'vessel_routes';
 
     protected $fillable = [
-        'route',
+        'port_of_loading_id',
+        'port_of_discharge_id',
         'day_estimation',
         'cost',
     ];
+
+    public function portOfLoading()
+    {
+        return $this->belongsTo(Port::class, 'port_of_loading_id');
+    }
+
+    public function portOfDischarge()
+    {
+        return $this->belongsTo(Port::class, 'port_of_discharge_id');
+    }
+
+    public function vessel()
+    {
+        return $this->belongsTo(Vessel::class);
+    }
 }

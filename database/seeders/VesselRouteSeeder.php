@@ -16,7 +16,6 @@ class VesselRouteSeeder extends Seeder
         $totalPorts = 61; // Jumlah total pelabuhan
 
 
-
         // Membuat kombinasi rute antara pelabuhan-pelabuhan yang tersedia
         for ($origin = 1; $origin <= $totalPorts; $origin++) {
             for ($destination = 1; $destination <= $totalPorts; $destination++) {

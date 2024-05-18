@@ -5,17 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddShipperConsigneeRequest;
 use App\Http\Requests\OrderPortRequest;
-use App\Http\Requests\QuotationRequest;
+use App\Http\Requests\CheckQuotationRequest;
 use App\Http\Requests\SummaryOrderRequest;
 use App\Http\Resources\AddShipperConsigneeResource;
 use App\Http\Resources\OrderPortResource;
+use App\Http\Resources\CheckQuotationResource;
 use App\Http\Resources\SummaryOrderResource;
 
 use App\Models\Order;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class OrderController extends Controller
 {
@@ -92,7 +95,7 @@ class OrderController extends Controller
         return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
     }
 
-    public function quotation(QuotationRequest $request)
+    public function checkQuotation(CheckQuotationRequest $request)
     {
         // Validate if user is authenticated
         $user = Auth::user();
@@ -100,24 +103,15 @@ class OrderController extends Controller
         // Validate data
         $data = $request->validated();
 
+//        i want to search transaction_id from table orders
+//          then from that result i want to search port_of_loading_id and port_of_loading_id
 
-//        Do something here
+        $checkOrderBasedOnTransactionId = Order::with(['portOfLoading', 'portOfDischarge'])
+            ->where('transaction_id', $data['transaction_id'])
+            ->first();
 
-//        Load all kapal, rute, estimasi hari, estimasi biaya
-//        "transaction_id" => $this->transaction_id,
-//                "port_of_loading_id" => $this->portOfLoading['name'],
-//                "port_of_discharge_id" => $this->portOfDischarge['name'],
-//                "date_of_loading" => $this->date_of_loading,
-
-//                Kapal A dipilih
-//
-//Rute: Lokasi terakhir kapal A- Pelabuhan loading - Pelabuhan discharge
-//Estimasi hari (estimasi waktu dari lokasi terakhir menuju pelabuhan loading + estimasi waktu perjalanan dengan barang[sudah termasuk lamanya bongkar muat] = 10 hari)
-//Estimasi biaya (biaya perjalanan dari lokasi tearkhir + biaya perjalanan)
-//
-
-        // If not found, throw 404 error
-        if (!$orderSummary) {
+//         If not found, throw 404 error
+        if (!$checkOrderBasedOnTransactionId) {
             throw new HttpResponseException(
                 response([
                     "errors" => [
@@ -128,7 +122,49 @@ class OrderController extends Controller
                 ], 404)
             );
         }
+//        From the result above, i want to search port_of_loading_id and port_of_loading_id from table vessel_routes
+//        Change port_of_loading_id to be port_of_loading_name, and port_of_discharge_id to be port_of_discharge_name and dont show the port_of_loading_id and port_of_discharge_id
+        $routeCollection = DB::table('vessel_routes')
+            ->join('ports as loading_port', 'vessel_routes.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'vessel_routes.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select( 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name','vessel_routes.day_estimation','vessel_routes.cost')
+            ->where('port_of_loading_id', $checkOrderBasedOnTransactionId->port_of_loading_id)
+            ->where('port_of_discharge_id', $checkOrderBasedOnTransactionId->port_of_discharge_id)
+            ->get()->first();
+
+//        So it become an array
+//        $routeBasedOnLoadingPortAndDischargePort = json_decode(json_encode($routeCollection), true);;
+
+//      I want to get all vessel_name from table vessels
+        $vessel_names = DB::table('vessels')
+            ->get();
+
+        // Prepare the data
+        $result = [
+            'transaction_id' => $checkOrderBasedOnTransactionId->transaction_id,
+            'data' => []
+        ];
+
+        // Loop through each vessel and construct the response
+        foreach ($vessel_names as $vessel_name) {
+
+                $result['data'][] = [
+                    'vessel_id' => $vessel_name->id,
+                    'vessel_name' => $vessel_name->vessel_name,
+                    'port_of_loading_name' => $routeCollection->port_of_loading_name,
+                    'port_of_discharge_name' => $routeCollection->port_of_discharge_name,
+                    'date_of_loading' => $checkOrderBasedOnTransactionId->date_of_loading,
+                    'estimated_day'=> $routeCollection->day_estimation,
+                    'estimated_date_of_discharge' =>  Carbon::createFromFormat('Y-m-d', $checkOrderBasedOnTransactionId->date_of_loading)->addDays($routeCollection->day_estimation)->format('Y-m-d'),
+                    'estimated_cost' => $routeCollection->cost,
+                ];
+
+        }
+
 // Return the response
-        return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
+        return response()->json([
+            'transaction_id' => $result['transaction_id'],
+            'data' => CheckQuotationResource::collection($result['data']),
+        ])->setStatusCode(200);
     }
 }

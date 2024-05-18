@@ -15,14 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('vessel_name');
             $table->string('vessel_type');
-            $table->string('imo_number');
-            $table->string('mmsi_number');
-            $table->string('vessel_status');
+//            $table->string('imo_number');
+//            $table->string('mmsi_number');
+            $table->enum('vessel_status', ['onhire', 'offhire']);
+            $table->string('vessel_lat');
+            $table->string('vessel_lon');
             $table->string('vessel_vts_speed_knot');
             $table->string('vessel_calc_speed_knot');
             $table->string('vessel_heading_degree');
             $table->string('vessel_tx_id');
-            $table->timestamps();
+            $table->timestamp('last_updated');
+
         });
     }
 

@@ -34,11 +34,12 @@ return new class extends Migration {
             // port_of_discharge_id
             $table->foreignId('port_of_discharge_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
 //            $table->foreignId('port_of_discharge_id')->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('vessel_id')->nullable()->constrained('vessels')->onUpdate('cascade')->onDelete('cascade');
             // date_of_loading
             $table->date('date_of_loading')->nullable();
 //            $table->date('date_of_loading');
             // date_of_discharge
-//            $table->date('date_of_discharge')->nullable();
+            $table->date('date_of_discharge')->nullable();
 //            $table->date('date_of_discharge');
             // status
             $table->enum('status', ['order_pending','order_still_verified_by_admin', 'payment_pending', 'on_shipping', 'order_shipped', 'payment_done', 'order_completed', 'order_canceled']);
