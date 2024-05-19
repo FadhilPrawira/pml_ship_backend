@@ -49,4 +49,9 @@ class Order extends Model
     {
         return $this->belongsTo(Port::class, 'port_of_discharge_id');
     }
+
+    public function vesselName()
+    {
+        return $this->belongsTo(Vessel::class, 'vessel_id');
+    }
 }

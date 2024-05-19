@@ -103,14 +103,14 @@ class OrderController extends Controller
         // Validate data
         $data = $request->validated();
 
-//        i want to search transaction_id from table orders
-//          then from that result i want to search port_of_loading_id and port_of_loading_id
+        //        i want to search transaction_id from table orders
+        //          then from that result i want to search port_of_loading_id and port_of_loading_id
 
         $checkOrderBasedOnTransactionId = Order::with(['portOfLoading', 'portOfDischarge'])
             ->where('transaction_id', $data['transaction_id'])
             ->first();
 
-//         If not found, throw 404 error
+        //         If not found, throw 404 error
         if (!$checkOrderBasedOnTransactionId) {
             throw new HttpResponseException(
                 response([
@@ -122,20 +122,20 @@ class OrderController extends Controller
                 ], 404)
             );
         }
-//        From the result above, i want to search port_of_loading_id and port_of_loading_id from table vessel_routes
-//        Change port_of_loading_id to be port_of_loading_name, and port_of_discharge_id to be port_of_discharge_name and dont show the port_of_loading_id and port_of_discharge_id
+        //        From the result above, i want to search port_of_loading_id and port_of_loading_id from table vessel_routes
+        //        Change port_of_loading_id to be port_of_loading_name, and port_of_discharge_id to be port_of_discharge_name and dont show the port_of_loading_id and port_of_discharge_id
         $routeCollection = DB::table('vessel_routes')
             ->join('ports as loading_port', 'vessel_routes.port_of_loading_id', '=', 'loading_port.id')
             ->join('ports as discharge_port', 'vessel_routes.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select( 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name','vessel_routes.day_estimation','vessel_routes.cost')
+            ->select('loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'vessel_routes.day_estimation', 'vessel_routes.cost')
             ->where('port_of_loading_id', $checkOrderBasedOnTransactionId->port_of_loading_id)
             ->where('port_of_discharge_id', $checkOrderBasedOnTransactionId->port_of_discharge_id)
             ->get()->first();
 
-//        So it become an array
-//        $routeBasedOnLoadingPortAndDischargePort = json_decode(json_encode($routeCollection), true);;
+        //        So it become an array
+        //        $routeBasedOnLoadingPortAndDischargePort = json_decode(json_encode($routeCollection), true);;
 
-//      I want to get all vessel_name from table vessels
+        //      I want to get all vessel_name from table vessels
         $vessel_names = DB::table('vessels')
             ->get();
 
@@ -148,23 +148,62 @@ class OrderController extends Controller
         // Loop through each vessel and construct the response
         foreach ($vessel_names as $vessel_name) {
 
-                $result['data'][] = [
-                    'vessel_id' => $vessel_name->id,
-                    'vessel_name' => $vessel_name->vessel_name,
-                    'port_of_loading_name' => $routeCollection->port_of_loading_name,
-                    'port_of_discharge_name' => $routeCollection->port_of_discharge_name,
-                    'date_of_loading' => $checkOrderBasedOnTransactionId->date_of_loading,
-                    'estimated_day'=> $routeCollection->day_estimation,
-                    'estimated_date_of_discharge' =>  Carbon::createFromFormat('Y-m-d', $checkOrderBasedOnTransactionId->date_of_loading)->addDays($routeCollection->day_estimation)->format('Y-m-d'),
-                    'estimated_cost' => $routeCollection->cost,
-                ];
-
+            $result['data'][] = [
+                'vessel_id' => $vessel_name->id,
+                'vessel_name' => $vessel_name->vessel_name,
+                'port_of_loading_name' => $routeCollection->port_of_loading_name,
+                'port_of_discharge_name' => $routeCollection->port_of_discharge_name,
+                'date_of_loading' => $checkOrderBasedOnTransactionId->date_of_loading,
+                'estimated_day' => $routeCollection->day_estimation,
+                'estimated_date_of_discharge' =>  Carbon::createFromFormat('Y-m-d', $checkOrderBasedOnTransactionId->date_of_loading)->addDays(intval($routeCollection->day_estimation))->format('Y-m-d'),
+                'estimated_cost' => $routeCollection->cost,
+            ];
         }
 
-// Return the response
+        // Return the response
         return response()->json([
             'transaction_id' => $result['transaction_id'],
             'data' => CheckQuotationResource::collection($result['data']),
         ])->setStatusCode(200);
+    }
+
+
+    public function placeQuotation(Request $request)
+    {
+        // Validate if user is authenticated
+        $user = Auth::user();
+
+        //        Validate data
+        $data = $request->all();
+
+        //        Find order by transaction_id and user_id
+        $order = Order::where('transaction_id', $data['transaction_id'])
+            ->where('user_id', $user->id)
+            ->first();
+
+
+        if (isset($data['vessel_id'])) {
+            $order->vessel_id = $data['vessel_id'];
+
+
+            $order->save();
+
+
+
+            //            create query based on this
+            //            {
+            //                “message”:”Quotation placed”
+            //“transaction_id”: "TRX1715412818",
+            //“order”: {
+            //                "TRX1715412818"
+            //    "vessel _name": "PT Indonesia Maju",
+            //}
+            //}
+            $result = Order::with('vesselName')
+                ->where('transaction_id', $data['transaction_id'])
+                ->first();
+            //
+            return response($result);
+        }
     }
 }
