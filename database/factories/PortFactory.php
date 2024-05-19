@@ -20,8 +20,8 @@ class PortFactory extends Factory
             // factory
             'name' => $this->faker->name(),
             'address' => $this->faker->address(),
-            'latitude' => $this->faker->latitude(),
-            'longitude' => $this->faker->longitude(),
+//            'latitude' => $this->faker->latitude(),
+//            'longitude' => $this->faker->longitude(),
             'open_time' => $this->faker->time(),
             'close_time' => $this->faker->time(),
             'image_url' => $this->faker->imageUrl(),
