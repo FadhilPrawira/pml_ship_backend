@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AddShipperConsigneeRequest;
 use App\Http\Requests\OrderPortRequest;
 use App\Http\Requests\CheckQuotationRequest;
+use App\Http\Requests\PlaceQuotationRequest;
 use App\Http\Requests\SummaryOrderRequest;
 use App\Http\Resources\AddShipperConsigneeResource;
 use App\Http\Resources\OrderPortResource;
@@ -153,6 +154,10 @@ class OrderController extends Controller
                 'vessel_name' => $vessel_name->vessel_name,
                 'port_of_loading_name' => $routeCollection->port_of_loading_name,
                 'port_of_discharge_name' => $routeCollection->port_of_discharge_name,
+                "port_of_loading_latitude"=> $checkOrderBasedOnTransactionId->portOfLoading->latitude,
+                "port_of_loading_longitude"=> $checkOrderBasedOnTransactionId->portOfLoading->longitude,
+                'port_of_discharge_latitude' => $checkOrderBasedOnTransactionId->portOfDischarge->latitude,
+                'port_of_discharge_longitude' => $checkOrderBasedOnTransactionId->portOfDischarge->longitude,
                 'date_of_loading' => $checkOrderBasedOnTransactionId->date_of_loading,
                 'estimated_day' => $routeCollection->day_estimation,
                 'estimated_date_of_discharge' =>  Carbon::createFromFormat('Y-m-d', $checkOrderBasedOnTransactionId->date_of_loading)->addDays(intval($routeCollection->day_estimation))->format('Y-m-d'),
@@ -168,7 +173,7 @@ class OrderController extends Controller
     }
 
 
-    public function placeQuotation(Request $request)
+    public function placeQuotation(PlaceQuotationRequest $request)
     {
         // Validate if user is authenticated
         $user = Auth::user();
@@ -190,15 +195,7 @@ class OrderController extends Controller
 
 
 
-            //            create query based on this
-            //            {
-            //                “message”:”Quotation placed”
-            //“transaction_id”: "TRX1715412818",
-            //“order”: {
-            //                "TRX1715412818"
-            //    "vessel _name": "PT Indonesia Maju",
-            //}
-            //}
+
             $result = Order::with('vesselName')
                 ->where('transaction_id', $data['transaction_id'])
                 ->first();

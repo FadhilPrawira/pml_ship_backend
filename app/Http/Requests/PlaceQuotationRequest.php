@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PlaceQuotationRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class PlaceQuotationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +24,28 @@ class PlaceQuotationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'transaction_id' => ['required'],
+            'vessel_id' => ['required'],
+        ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response(
+                [
+                    "errors" => $validator->errors()->messages(),
+                ],
+                400
+            )
+        );
+    }
+
+    public function messages(): array
+    {
+        return [
+            'transaction_id.required' => 'Transaction id is required',
+            'vessel_id.required' => 'Vessel id is required',
         ];
     }
 }
