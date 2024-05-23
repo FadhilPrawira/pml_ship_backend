@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rules\File;
 
 class UserRegisterRequest extends FormRequest
 {
@@ -14,8 +15,6 @@ class UserRegisterRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //        true: Everyone can register
-        //        false: Only authenticated users can register
         return true;
     }
 
@@ -36,8 +35,8 @@ class UserRegisterRequest extends FormRequest
             'company_phone' => ['required', 'max:20'],
             'company_email' => ['required', 'email', 'max:100'],
             'company_NPWP' => ['required', 'max:20'],
-            'company_akta_url' => ['required', 'max:255'],
-
+            // 'company_akta_url' => ['required', 'max:255'],
+            'company_akta_url' => ['required', File::types(['pdf'])],
         ];
     }
     protected function failedValidation(Validator $validator)
@@ -92,8 +91,8 @@ class UserRegisterRequest extends FormRequest
             'company_NPWP.max' => 'Company NPWP must be at most 20 characters',
 
             'company_akta_url.required' => 'Company akta url is required',
-            'company_akta_url.max' => 'Company akta url must be at most 255 characters',
-
+            // 'company_akta_url.max' => 'Company akta url must be at most 255 characters',
+            'company_akta_url.file' => 'Company akta url must be a pdf file',
         ];
     }
 }

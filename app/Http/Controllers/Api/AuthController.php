@@ -128,7 +128,41 @@ class AuthController extends Controller
         $data['password'] = Hash::make($data['password']);
 
         //        Create user/Input into database
-        $user = User::create($data);
+        // $user = User::create($data);
+
+        // Create a new user
+        $user = new User();
+
+        $user->role = $data['role'];
+        $user->name = $data['name'];
+        $user->phone = $data['phone'];
+        $user->email = $data['email'];
+        $user->password = $data['password'];
+        $user->company_name = $data['company_name'];
+        $user->company_address = $data['company_address'];
+        $user->company_phone = $data['company_phone'];
+        $user->company_email = $data['company_email'];
+        $user->company_NPWP = $data['company_NPWP'];
+
+        $user->save();
+
+        // Check if file is not empty and file is uploaded
+        if ($request->hasFile('company_akta_url')) {
+
+            // Get the file
+            $company_akta_url = $request->file('company_akta_url');
+
+            // Set file name
+            $file_name = $user->company_name . '-' . $user->id . '.' . $company_akta_url->extension();
+
+            // Store the new file
+            $company_akta_url->storeAs('public/documents', $file_name);
+
+            // Update the user file path in databases
+            $user->company_akta_url = 'documents/' . $file_name;
+
+            $user->save();
+        }
 
         return (new UserResource($user))->response()->setStatusCode(201);
     }
