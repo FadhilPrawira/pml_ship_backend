@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Currency;
 use App\Models\VesselRoute;
 use Illuminate\Database\Seeder;
 
@@ -16,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
+            CurrencySeeder::class,
             UserSeeder::class,
             PortSeeder::class,
             VesselSeeder::class,

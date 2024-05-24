@@ -18,16 +18,15 @@ class Vessel extends Model
 
     protected $fillable = [
         'vessel_name',
-        'vessel_type',
-        'imo_number',
-        'mmsi_number',
-        'vessel_status',
+        'vessel_lat',
+        'vessel_lon',
         'vessel_vts_speed_knot',
         'vessel_calc_speed_knot',
         'vessel_heading_degree',
         'vessel_tx_id',
+        'pml_last_updated_at'
     ];
 
-    public $timestamps = false;
+    // public $timestamps = false;
 
 }

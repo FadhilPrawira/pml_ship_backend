@@ -14,18 +14,17 @@ return new class extends Migration
         Schema::create('vessels', function (Blueprint $table) {
             $table->id();
             $table->string('vessel_name');
-            $table->string('vessel_type');
-//            $table->string('imo_number');
-//            $table->string('mmsi_number');
-            $table->enum('vessel_status', ['onhire', 'offhire']);
-            $table->string('vessel_lat');
-            $table->string('vessel_lon');
-            $table->string('vessel_vts_speed_knot');
-            $table->string('vessel_calc_speed_knot');
-            $table->string('vessel_heading_degree');
+            // $table->string('vessel_type');
+            // $table->enum('vessel_status', ['onhire', 'offhire'])->default('onhire');
+            $table->string('vessel_lat')->nullable();
+            $table->string('vessel_lon')->nullable();
+            $table->string('vessel_vts_speed_knot')->nullable();
+            $table->string('vessel_calc_speed_knot')->nullable();
+            $table->string('vessel_heading_degree')->nullable();
             $table->string('vessel_tx_id');
-            $table->timestamp('last_updated');
-
+            $table->string('pml_internal_vessel_id');
+            $table->timestamp('pml_last_updated_at')->nullable();
+            $table->timestamps();
         });
     }
 
