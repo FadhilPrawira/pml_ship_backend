@@ -32,36 +32,40 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request): UserUpdateResource
     {
         $data = $request->validated();
-        $user = Auth::user();
-        if (isset($data['name'])) {
-            $user->name = $data['name'];
-        }
-        if (isset($data['phone'])) {
-            $user->phone = $data['phone'];
-        }
-        if (isset($data['email'])) {
-            $user->email = $data['email'];
-        }
-//        if (isset($data['password'])) {
-//            Hash::make($data['password']);
-//        }
-        if (isset($data['company_name'])) {
-            $user->company_name = $data['company_name'];
-        }
-        if (isset($data['company_address'])) {
-            $user->company_address = $data['company_address'];
-        }
-        if (isset($data['company_phone'])) {
-            $user->company_phone = $data['company_phone'];
-        }
-        if (isset($data['company_email'])) {
-            $user->company_email = $data['company_email'];
-        }
-        if (isset($data['company_NPWP'])) {
-            $user->company_NPWP = $data['company_NPWP'];
+
+        if (Auth::check()) {
+            $user = User::where('id', Auth::id())->first();
+            if (isset($data['name'])) {
+                $user->name = $data['name'];
+            }
+            if (isset($data['phone'])) {
+                $user->phone = $data['phone'];
+            }
+            if (isset($data['email'])) {
+                $user->email = $data['email'];
+            }
+            //        if (isset($data['password'])) {
+            //            Hash::make($data['password']);
+            //        }
+            if (isset($data['company_name'])) {
+                $user->company_name = $data['company_name'];
+            }
+            if (isset($data['company_address'])) {
+                $user->company_address = $data['company_address'];
+            }
+            if (isset($data['company_phone'])) {
+                $user->company_phone = $data['company_phone'];
+            }
+            if (isset($data['company_email'])) {
+                $user->company_email = $data['company_email'];
+            }
+            if (isset($data['company_NPWP'])) {
+                $user->company_NPWP = $data['company_NPWP'];
+            }
+
+            $user->save();
         }
 
-        $user->save();
         return new UserUpdateResource($user);
     }
 
@@ -89,7 +93,7 @@ class UserController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        $user = Auth::user();
+
         //        $page = $request->input('page', 1);
         //        $size = $request->input('size', 10);
 
