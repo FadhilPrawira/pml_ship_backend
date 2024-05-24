@@ -166,4 +166,35 @@ class AuthController extends Controller
 
         return (new UserResource($user))->response()->setStatusCode(201);
     }
+
+    // TODO: Implement Forgot Password
+    // step 1: forgot password clicked/requested->create code->send code through email
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $data['email'])->first();
+
+        // Generate random code
+        $code = rand(100000, 999999);
+
+        // Save code to user
+        $user->password_reset_code = $code;
+        $user->save();
+
+        // Send code to user email
+        // Mail::to($user->email)->send(new ForgotPasswordMail($code));
+
+        return response()->json([
+            'data' => [
+                'message' => 'Code has been sent to your email'
+            ]
+        ]);
+    }
+    // step 2: user input code->check code
+    // step 3: user input new password->update password
+
+
 }
