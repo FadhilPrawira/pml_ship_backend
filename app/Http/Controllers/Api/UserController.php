@@ -32,7 +32,6 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request): UserUpdateResource
     {
         $data = $request->validated();
-
         if (Auth::check()) {
             $user = User::where('id', Auth::id())->first();
             if (isset($data['name'])) {
