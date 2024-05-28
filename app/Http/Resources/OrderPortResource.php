@@ -22,7 +22,6 @@ class OrderPortResource extends JsonResource
                     'port_of_loading_id' => $this->port_of_loading_id,
                     'port_of_discharge_id' => $this->port_of_discharge_id,
                     'date_of_loading' => $this->date_of_loading,
-//                    'date_of_discharge' => $this->date_of_discharge,
                     'cargo_description' => $this->cargo_description,
                     'cargo_weight' => $this->cargo_weight
                 ]

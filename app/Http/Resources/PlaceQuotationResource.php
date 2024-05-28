@@ -18,7 +18,14 @@ class PlaceQuotationResource extends JsonResource
             'message' => 'Quotation placed',
             'transaction_id' => $this->transaction_id,
             'order' => [
-                'vessel_name' => $this->vessel_name,
+                'vessel_id' => $this->vessel_id,
+                'port_of_loading_id' => $this->port_of_loading_id,
+                'port_of_discharge_id' => $this->port_of_discharge_id,
+                'date_of_loading' => $this->date_of_loading,
+                'date_of_discharge' => $this->date_of_discharge,
+                'cargo_description' => $this->cargo_description,
+                'cargo_weight' => $this->cargo_weight,
+                'estimation_total_cost'=> $this->total_cost
             ],
 
         ];

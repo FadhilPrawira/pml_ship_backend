@@ -21,8 +21,8 @@ class VesselRouteFactory extends Factory
         return [
             // factory
 
-//            Maximum day from Open Meteo for forecast is 16 days
-            'day_estimation' => random_int(1, 16),
+//            Maximum day from Open Meteo for forecast is 15 days
+            'day_estimation' => random_int(1, 15),
             'cost' => random_int(1, 10) . '000000'
 
         ];
