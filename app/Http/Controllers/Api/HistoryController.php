@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 
 class HistoryController extends Controller
 {
@@ -19,6 +20,8 @@ class HistoryController extends Controller
 
         $order = Order::with(['portOfLoading', 'portOfDischarge', 'vesselName'])
             ->where('user_id', $user->id)
+//            order by created_at desc
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
