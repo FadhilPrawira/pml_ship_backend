@@ -50,7 +50,11 @@ return new class extends Migration {
             $table->string('cargo_weight')->nullable();
 //            $table->string('cargo_weight');
             // total_cost
-            $table->string('total_cost')->nullable();
+            $table->unsignedBigInteger('shipping_cost')->nullable();
+            $table->unsignedBigInteger('handling_cost')->nullable();
+            $table->unsignedBigInteger('biaya_parkir_pelabuhan')->nullable();
+            $table->unsignedBigInteger('tax')->nullable();
+            $table->unsignedBigInteger('total_cost')->nullable();
 //            $table->string('total_cost');
             // shipping_instruction_document_url
             $table->string('shipping_instruction_document_url')->nullable();
@@ -66,6 +70,7 @@ return new class extends Migration {
             $table->integer('rating_star')->nullable();
             // review
             $table->text('review')->nullable();
+            $table->timestampTz('negotiation_approved_at', precision: 0)->nullable();
             $table->timestamps();
         });
     }

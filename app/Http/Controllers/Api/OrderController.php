@@ -3,17 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddConferenceRequest;
 use App\Http\Requests\AddShipperConsigneeRequest;
 use App\Http\Requests\OrderPortRequest;
 use App\Http\Requests\CheckQuotationRequest;
 use App\Http\Requests\PlaceQuotationRequest;
 use App\Http\Requests\SummaryOrderRequest;
+use App\Http\Requests\UpdateDocumentRequest;
+use App\Http\Resources\AddConferenceResource;
 use App\Http\Resources\AddShipperConsigneeResource;
 use App\Http\Resources\OrderPortResource;
 use App\Http\Resources\CheckQuotationResource;
 use App\Http\Resources\PlaceQuotationResource;
 use App\Http\Resources\SummaryOrderResource;
 
+use App\Models\Conference;
 use App\Models\Order;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -70,7 +74,7 @@ class OrderController extends Controller
         $routeCollection = DB::table('vessel_routes')
             ->join('ports as loading_port', 'vessel_routes.port_of_loading_id', '=', 'loading_port.id')
             ->join('ports as discharge_port', 'vessel_routes.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'vessel_routes.day_estimation', 'vessel_routes.cost')
+            ->select('loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'vessel_routes.day_estimation', 'vessel_routes.shipping_cost','vessel_routes.handling_cost', 'vessel_routes.biaya_parkir_pelabuhan')
             ->where('port_of_loading_id', $checkOrderBasedOnTransactionId->port_of_loading_id)
             ->where('port_of_discharge_id', $checkOrderBasedOnTransactionId->port_of_discharge_id)
             ->get()->first();
@@ -100,9 +104,12 @@ class OrderController extends Controller
                 'date_of_loading' => $checkOrderBasedOnTransactionId->date_of_loading,
                 'estimated_day' => $routeCollection->day_estimation,
                 'estimated_date_of_discharge' => Carbon::createFromFormat('Y-m-d', $checkOrderBasedOnTransactionId->date_of_loading)->addDays(intval($routeCollection->day_estimation))->format('Y-m-d'),
-                'estimated_cost' => $routeCollection->cost,
+                'shipping_cost' => $routeCollection->shipping_cost,
+                'handling_cost' => $routeCollection->handling_cost,
+                'biaya_parkir_pelabuhan' => $routeCollection->biaya_parkir_pelabuhan,
             ];
         }
+
 
         // Return the response
         return response()->json([
@@ -114,7 +121,7 @@ class OrderController extends Controller
 
     public function placeQuotation(PlaceQuotationRequest $request)
     {
-        // Validate if user is authenticated
+        // Get the authenticated user
         $user = Auth::user();
 
         //        Validate data
@@ -147,14 +154,21 @@ class OrderController extends Controller
             $order->date_of_discharge = $data['date_of_discharge'];
         }
 
-        if (isset($data['estimated_total_cost'])) {
-            $order->total_cost = $data['estimated_total_cost'];
+        if (isset($data['shipping_cost'])) {
+            $order->shipping_cost = $data['shipping_cost'];
+        }
+
+        if (isset($data['handling_cost'])) {
+            $order->handling_cost = $data['handling_cost'];
+        }
+        if (isset($data['biaya_parkir_pelabuhan'])) {
+            $order->biaya_parkir_pelabuhan = $data['biaya_parkir_pelabuhan'];
         }
 
         $order->save();
 
-//        Search the order by transaction_id and rename the total_cost to be estimated_total_cost
-        $result = Order::select('*', DB::raw('total_cost as estimated_total_cost'))
+//        Search the order by transaction_id and user_id
+        $result = Order::select('*', DB::raw('shipping_cost'))
             ->where('transaction_id', $data['transaction_id'])
             ->where('user_id', $user->id)
             ->first();
@@ -165,7 +179,7 @@ class OrderController extends Controller
 
     public function addShipperConsignee(AddShipperConsigneeRequest $request)
     {
-        //        Validate if user is authenticated
+        // Get the authenticated user
         $user = Auth::user();
 
         //        Validate data
@@ -176,6 +190,18 @@ class OrderController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
+//        If not found, throw 404 error
+        if (!$order) {
+            throw new HttpResponseException(
+                response([
+                    "errors" => [
+                        "message" => [
+                            "Transaction not found."
+                        ]
+                    ]
+                ], 404)
+            );
+        }
 
         if (isset($data['shipper_name'])) {
             $order->shipper_name = $data['shipper_name'];
@@ -198,16 +224,16 @@ class OrderController extends Controller
 
     public function summaryOrder(SummaryOrderRequest $request)
     {
-        // Validate if user is authenticated
+        // Get the authenticated user
         $user = Auth::user();
 
         // Validate data
         $data = $request->validated();
 
         // Retrieve the order summary
-        $orderSummary = Order::with(['portOfLoading', 'portOfDischarge'])
-            ->where('transaction_id', $data['transaction_id'])
+        $orderSummary = Order::with(['portOfLoading', 'portOfDischarge', 'vesselName'])
             ->where('user_id', $user->id)
+            ->where('transaction_id', $data['transaction_id'])
             ->first();
 
         // If not found, throw 404 error
@@ -225,7 +251,88 @@ class OrderController extends Controller
 
         // Return the response
         return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
+
     }
 
+    public function addConference(AddConferenceRequest $request)
+    {
+//        Validate data
+        $data = $request->validated();
 
+//        Check if transaction_id exists
+        if (Conference::where('transaction_id', $data['transaction_id'])->exists()) {
+            throw new HttpResponseException(
+                response([
+                    "errors" => [
+                        "message" => [
+                            "Transaction already exists."
+                        ]
+                    ]
+                ], 400)
+            );
+        }
+
+//        If not exists, insert new conference
+        $addConference = Conference::Create($data);
+
+        return (new AddConferenceResource($addConference))->response()->setStatusCode(201);
+    }
+
+    public function updateDocument(UpdateDocumentRequest $request)
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Validate data
+        $data = $request->validated();
+
+        $order = Order::with(['portOfLoading', 'portOfDischarge', 'vesselName'])
+            ->where('transaction_id', $data['transaction_id'])
+            ->where('user_id', $user->id)
+            ->first();
+
+
+
+
+        // Check if file is not empty and file is uploaded
+        if ($request->hasFile('document')) {
+
+            // Get the file
+            $document = $request->file('document');
+
+//            Document type location
+            // Set file name
+            $file_name = $data['transaction_id'] . '-'. $data['type'] . '-' . $document->extension();
+            // Store the new file
+            $document->storeAs('public/documents', $file_name);
+
+            switch ($data['type']) {
+                case "shipping_instruction":
+                    // Update the user file path in databases
+                    $order->shipping_instruction_document_url = 'documents/' . $file_name;
+                    break;
+                case "bill_of_lading":
+                    // Update the user file path in databases
+                    $order->bill_of_lading_document_url = 'documents/' . $file_name;
+                    break;
+                case "cargo_manifest":
+                    // Update the user file path in databases
+                    $order->cargo_manifest_document_url = 'documents/' . $file_name;
+                    break;
+                case "time_sheet":
+                    // Update the user file path in databases
+                    $order->time_sheet_document_url = 'documents/' . $file_name;
+                    break;
+                case "draught_survey":
+                    // Update the user file path in databases
+                    $order->draught_survey_document_url = 'documents/' . $file_name;
+                    break;
+//                default:
+//                    echo "Your favorite color is neither red, blue, nor green!";
+            }
+
+            $order->save();
+        }
+
+    }
 }

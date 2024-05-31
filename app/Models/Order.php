@@ -37,7 +37,9 @@ class Order extends Model
         'time_sheet_document_url',
         'draught_survey_document_url',
         'rating_star',
-        'review'
+        'review',
+        'negotiation_approved_at'
+
     ];
 
     // TODO: Fix Eloquent Relationship (Many to One) to Port Model

@@ -26,3 +26,7 @@ Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class,
 Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
 Route::patch('/addShipperConsignee', [App\Http\Controllers\Api\OrderController::class, 'addShipperConsignee'])->middleware('auth:sanctum');
 Route::post('/summaryOrder', [App\Http\Controllers\Api\OrderController::class, 'summaryOrder'])->middleware('auth:sanctum');
+Route::post('/addConference', [App\Http\Controllers\Api\OrderController::class, 'addConference'])->middleware('auth:sanctum');
+Route::put('/updateDocument', [App\Http\Controllers\Api\OrderController::class, 'updateDocument'])->middleware('auth:sanctum');
+
+Route::get('/history', [App\Http\Controllers\Api\HistoryController::class, 'index'])->middleware('auth:sanctum');

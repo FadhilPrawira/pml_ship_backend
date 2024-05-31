@@ -26,7 +26,9 @@ class CheckQuotationResource extends JsonResource
             'date_of_loading' => $this['date_of_loading'],
             'estimated_day' => $this['estimated_day'],
             'estimated_date_of_discharge' => $this['estimated_date_of_discharge'],
-            'estimated_cost' => $this['estimated_cost'],
+            'shipping_cost' => $this['shipping_cost'],
+            'handling_cost' => $this['handling_cost'],
+            'biaya_parkir_pelabuhan'=> $this['biaya_parkir_pelabuhan'],
         ];
     }
 }

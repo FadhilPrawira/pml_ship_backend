@@ -28,7 +28,6 @@ class OrderPortRequest extends FormRequest
             'port_of_loading_id' => ['required'],
             'port_of_discharge_id' => ['required'],
             'date_of_loading' => ['required'],
-//            'date_of_discharge' => ['required'],
             'cargo_description' => ['required'],
             'cargo_weight' => ['required']
         ];
@@ -59,7 +58,6 @@ class OrderPortRequest extends FormRequest
             'port_of_loading_id' => 'Port of loading is required',
             'port_of_discharge_id' => 'Port of discharge is required',
             'date_of_loading' => 'Date of loading is required',
-//            'date_of_discharge' => 'Date of discharge is required',
             'cargo_description' => 'Cargo description is required',
             'cargo_weight' => 'Cargo weight is required'
         ];

@@ -28,7 +28,9 @@ class PlaceQuotationRequest extends FormRequest
             'transaction_id' => ['required'],
             'vessel_id' => ['required'],
             'date_of_discharge' => ['required'],
-            'estimated_total_cost'=> ['required'],
+            'shipping_cost'=> ['required'],
+            'handling_cost'=> ['required'],
+            'biaya_parkir_pelabuhan'=> ['required'],
         ];
     }
 
@@ -50,7 +52,9 @@ class PlaceQuotationRequest extends FormRequest
             'transaction_id.required' => 'Transaction id is required',
             'vessel_id.required' => 'Vessel id is required',
             'date_of_discharge.required' => 'Date of discharge is required',
-            'estimated_total_cost.required' => 'Total cost is required',
+            'shipping_cost.required' => 'Shipping cost is required',
+            'handling_cost.required' => 'Handling cost is required',
+            'biaya_parkir_pelabuhan.required' => 'Biaya parkir pelabuhan is required',
         ];
     }
 }

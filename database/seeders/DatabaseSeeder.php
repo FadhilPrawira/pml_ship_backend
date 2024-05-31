@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             UserSeeder::class,
             PortSeeder::class,
-            VesselSeeder::class,
             VesselRouteSeeder::class,
+            VesselSeeder::class,
         ]);
     }
 }

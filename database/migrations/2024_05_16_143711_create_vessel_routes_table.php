@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('port_of_loading_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('port_of_discharge_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
             $table->integer('day_estimation');
-            $table->integer('cost');
+            $table->unsignedBigInteger('shipping_cost');
+            $table->unsignedBigInteger('handling_cost');
+            $table->unsignedBigInteger('biaya_parkir_pelabuhan');
             $table->timestamps();
         });
     }

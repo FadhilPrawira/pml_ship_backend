@@ -23,7 +23,9 @@ class VesselRouteFactory extends Factory
 
 //            Maximum day from Open Meteo for forecast is 15 days
             'day_estimation' => random_int(1, 15),
-            'cost' => random_int(1, 10) . '000000'
+            'shipping_cost' => random_int(1, 10) . '0000000000',
+            'handling_cost' => random_int(1, 10) . '0000000',
+            'biaya_parkir_pelabuhan' => random_int(1, 10) . '0000000',
 
         ];
     }
