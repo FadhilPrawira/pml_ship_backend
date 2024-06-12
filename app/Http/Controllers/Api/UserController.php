@@ -5,30 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserCollection;
-use App\Http\Resources\UserResource;
-use App\Http\Resources\UserSearchResource;
 use App\Http\Resources\UserUpdateResource;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function get(Request $request): JsonResponse
-    {
-        if (Auth::check()) {
-            $user = User::where('id', Auth::id())->first();
-        }
-        return response()->json([
-
-            'data' => $user,
-        ], 200);
-    }
-
     public function update(UserUpdateRequest $request): UserUpdateResource
     {
         $data = $request->validated();
@@ -93,15 +79,81 @@ class UserController extends Controller
     public function search(Request $request): JsonResponse
     {
 
-        //        $page = $request->input('page', 1);
-        //        $size = $request->input('size', 10);
-
         // Only return users with role 'user'
-        $users = User::query()->where('role', 'user')->paginate(10);
+        $users = User::query()->where('role', 'user')->get();
 
         return response()->json(
             $users,
             200
         );
+    }
+
+    public function get(Request $request): JsonResponse
+    {
+        if (Auth::check()) {
+            $user = User::where('id', Auth::id())->first();
+        }
+        return response()->json([
+
+            'data' => $user,
+        ], 200);
+    }
+
+    public function pendingUserSearch(Request $request): JsonResponse
+    {
+
+        // Only return users with role 'user' and status 'pending'
+        $users = User::query()->where('role', 'user')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'data' => $users,
+        ], 200);
+    }
+
+    public function approvedUserSearch(Request $request): JsonResponse
+    {
+
+        // Only return users with role 'user' and status 'approved'
+        $users = User::query()->where('role', 'user')->where('status', 'approved')->orderBy('approvedDate', 'desc')->get();
+
+        return response()->json([
+            'data' => $users,
+        ], 200);
+    }
+
+    public function rejectedUserSearch(Request $request): JsonResponse
+    {
+
+//        Only return users with role 'user' and status 'rejected'
+//        order by rejectedDate from the latest
+        $users = User::query()->where('role', 'user')->where('status', 'rejected')->orderBy('rejectedDate', 'desc')->get();
+
+        return response()->json([
+            'data' => $users,
+        ], 200);
+    }
+
+    public function approveUser(int $userId, Request $request)
+    {
+        $user = User::where('id', $userId)->first();
+        $user->status = "approved";
+        $user->approvedDate = Carbon::parse($request->approvedDate)->format('Y-m-d H:i:s');
+        $user->save();
+
+        return response()->json([
+            'message' => 'User approved.'
+        ])->setStatusCode(200);
+    }
+
+    public function rejectUser(int $userId, Request $request)
+    {
+        $user = User::where('id', $userId)->first();
+        $user->status = "rejected";
+        $user->rejectedDate = Carbon::parse($request->rejectedDate)->format('Y-m-d H:i:s');
+        $user->save();
+
+        return response()->json([
+            'message' => 'User rejected.'
+        ])->setStatusCode(200);
     }
 }

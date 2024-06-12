@@ -28,10 +28,17 @@ class Conference extends Model
         'location',
         'conference_date',
         'conference_time',
+        'customer_company_id',
+        'status',
     ];
 
     public function transactionId(): HasOne
     {
         return $this->hasOne(Order::class, 'transaction_id');
+    }
+
+    public function customerCompanyId(): HasOne
+    {
+        return $this->hasOne(User::class, 'id');
     }
 }

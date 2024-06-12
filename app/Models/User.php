@@ -26,6 +26,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'status',
         'role',
         'phone',
         'email',
@@ -36,6 +37,8 @@ class User extends Authenticatable
         'company_email',
         'company_NPWP',
         'company_akta_url',
+        'approvedDate',
+        'rejectedDate',
     ];
 
     /**
@@ -61,6 +64,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'approvedDate' => 'datetime',
+            'rejectedDate' => 'datetime',
         ];
     }
 }

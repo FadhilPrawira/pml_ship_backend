@@ -122,8 +122,10 @@ class AuthController extends Controller
                 ], 400)
             );
         }
-        //        Set default role
+        //        Set default role and status
         $data['role'] = 'user';
+        $data['status'] = 'pending';
+
         //        Hash password
         $data['password'] = Hash::make($data['password']);
 
@@ -134,6 +136,7 @@ class AuthController extends Controller
         $user = new User();
 
         $user->role = $data['role'];
+        $user->status = $data['status'];
         $user->name = $data['name'];
         $user->phone = $data['phone'];
         $user->email = $data['email'];
@@ -154,13 +157,13 @@ class AuthController extends Controller
 
             // Set file name
             $file_name = $user->company_name . '-' . $user->id . '.' . $company_akta_url->extension();
-
+            $file_name = str_replace(" ","_",$file_name);
             // Store the new file
             $company_akta_url->storeAs('public/documents', $file_name);
 
             // Update the user file path in databases
-            $user->company_akta_url = 'documents/' . $file_name;
-
+//            $user->company_akta_url = 'documents/' . $file_name;
+            $user->company_akta_url = $file_name;
             $user->save();
         }
 
@@ -195,6 +198,7 @@ class AuthController extends Controller
     }
     // step 2: user input code->check code
     // step 3: user input new password->update password
+
 
 
 }

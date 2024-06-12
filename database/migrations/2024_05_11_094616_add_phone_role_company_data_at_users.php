@@ -15,6 +15,9 @@ return new class extends Migration
             $table->string('name', length: 100)->change();
             $table->string('email', length: 100)->change();
             $table->enum('role', ['admin', 'user'])->after('id')->default('user');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->after('id')->default('pending');
+            $table->timestampTz('rejectedDate', precision: 0)->nullable();
+            $table->timestampTz('approvedDate', precision: 0)->nullable();
             $table->string('phone', length: 20)->after('name')->nullable();
             $table->string('company_name', length: 255)->after('password')->nullable();
             $table->string('company_address', length: 255)->after('company_name')->nullable();

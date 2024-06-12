@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'role' => 'admin',
+            'status' => 'approved',
             'name' => 'Fadhil Prawira',
 
             'email' => 'fadhilprawira87@gmail.com',
@@ -23,6 +24,7 @@ class UserSeeder extends Seeder
         ]);
         User::factory()->create([
             'role' => 'user',
+            'status' => 'approved',
             'name' => 'User Test',
 
             'email' => 'user6@example.com',
@@ -30,6 +32,7 @@ class UserSeeder extends Seeder
         ]);
         User::factory()->create([
             'role' => 'user',
+            'status' => 'approved',
             'name' => 'Dani Sefianto',
 
             'email' => 'sefiantodani@gmail.com',
@@ -37,6 +40,7 @@ class UserSeeder extends Seeder
         ]);
         User::factory()->create([
             'role' => 'user',
+            'status' => 'approved',
             'name' => 'Qory Wiljanova',
 
             'email' => 'qorywiljanova2016@gmail.com',
