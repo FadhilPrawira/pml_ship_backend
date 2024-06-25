@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('company_name', length: 255)->after('password')->nullable();
             $table->string('company_address', length: 255)->after('company_name')->nullable();
             $table->string('company_phone', length: 20)->after('company_address')->nullable();
-            $table->string('company_email',length: 100)->after('company_phone')->nullable();
+            $table->string('company_email', length: 100)->after('company_phone')->nullable();
             $table->string('company_NPWP', length: 20)->after('company_email')->nullable();
             $table->string('company_akta_url', length: 255)->after('company_NPWP')->nullable();
             $table->softDeletes();

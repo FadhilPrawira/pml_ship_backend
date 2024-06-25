@@ -124,8 +124,8 @@ class UserController extends Controller
     public function rejectedUserSearch(Request $request): JsonResponse
     {
 
-//        Only return users with role 'user' and status 'rejected'
-//        order by rejectedDate from the latest
+        //        Only return users with role 'user' and status 'rejected'
+        //        order by rejectedDate from the latest
         $users = User::query()->where('role', 'user')->where('status', 'rejected')->orderBy('rejectedDate', 'desc')->get();
 
         return response()->json([

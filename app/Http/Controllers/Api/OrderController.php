@@ -3,21 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddConferenceRequest;
 use App\Http\Requests\AddShipperConsigneeRequest;
 use App\Http\Requests\CheckQuotationRequest;
 use App\Http\Requests\OrderPortRequest;
 use App\Http\Requests\PlaceQuotationRequest;
 use App\Http\Requests\SummaryOrderRequest;
 use App\Http\Requests\UpdateDocumentRequest;
-use App\Http\Resources\AddConferenceResource;
 use App\Http\Resources\AddShipperConsigneeResource;
 use App\Http\Resources\CheckQuotationResource;
 use App\Http\Resources\OrderPortResource;
 use App\Http\Resources\PlaceQuotationResource;
 use App\Http\Resources\SummaryOrderResource;
 use App\Http\Resources\UpdateDocumentResource;
-use App\Models\Conference;
 use App\Models\Order;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -48,8 +45,8 @@ class OrderController extends Controller
         // Validate data
         $data = $request->validated();
 
-//        Search transaction_id from table orders
-//        Then from that result, search port_of_loading_id and port_of_loading_id
+        //        Search transaction_id from table orders
+        //        Then from that result, search port_of_loading_id and port_of_loading_id
         $checkOrderBasedOnTransactionId = Order::with(['portOfLoading', 'portOfDischarge'])
             ->where('transaction_id', $data['transaction_id'])
             ->where('user_id', $user->id)
@@ -146,7 +143,7 @@ class OrderController extends Controller
             );
         }
 
-//        Update the order
+        //        Update the order
         if (isset($data['vessel_id'])) {
             $order->vessel_id = $data['vessel_id'];
         }
@@ -168,14 +165,13 @@ class OrderController extends Controller
 
         $order->save();
 
-//        Search the order by transaction_id and user_id
+        //        Search the order by transaction_id and user_id
         $result = Order::select('*', DB::raw('shipping_cost'))
             ->where('transaction_id', $data['transaction_id'])
             ->where('user_id', $user->id)
             ->first();
 
         return (new PlaceQuotationResource($result))->response()->setStatusCode(200);
-
     }
 
     public function addShipperConsignee(AddShipperConsigneeRequest $request)
@@ -191,7 +187,7 @@ class OrderController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
-//        If not found, throw 404 error
+        //        If not found, throw 404 error
         if (!$order) {
             throw new HttpResponseException(
                 response([
@@ -218,14 +214,14 @@ class OrderController extends Controller
         }
 
         $order->save();
-//        Return the response
+        //        Return the response
         return (new AddShipperConsigneeResource($order))->response()->setStatusCode(201);
     }
 
 
     public function summaryOrder(SummaryOrderRequest $request)
     {
-//        TODO: Create trigger. When negotiation is approved (have datetime data), then update the value of column status from 'order_pending' to 'processed'
+        //        TODO: Create trigger. When negotiation is approved (have datetime data), then update the value of column status from 'order_pending' to 'processed'
         // Get the authenticated user
         $user = Auth::user();
 
@@ -253,135 +249,7 @@ class OrderController extends Controller
 
         // Return the response
         return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
-
     }
-
-    public function addConference(AddConferenceRequest $request)
-    {
-//        Validate data
-        $data = $request->validated();
-
-//        Check if transaction_id exists
-        if (Conference::where('transaction_id', $data['transaction_id'])->exists()) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "Transaction already exists."
-                        ]
-                    ]
-                ], 400)
-            );
-        }
-
-        $user = Auth::user();
-        $data['customer_company_id'] = $user->id;
-        $data['status'] = 'pending';
-
-//        Create conference
-        $addConference = Conference::Create($data);
-
-        return (new AddConferenceResource($addConference))->response()->setStatusCode(201);
-    }
-
-    public function pendingConferenceSearch(Request $request): JsonResponse
-    {
-
-        $conferences = DB::table('conferences')
-            ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-            ->select('conferences.*', 'users.company_name')
-            ->where('conferences.status', 'pending')
-            ->get();
-
-        return response()->json([
-            'data' => $conferences,
-        ], 200);
-    }
-
-    public function approvedConferenceSearch(Request $request): JsonResponse
-    {
-
-        $conferences = DB::table('conferences')
-            ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-            ->select('conferences.*', 'users.company_name')
-            ->where('conferences.status', 'approved')
-            ->get();
-
-        return response()->json([
-            'data' => $conferences,
-        ], 200);
-    }
-
-    public function rejectedConferenceSearch(Request $request): JsonResponse
-    {
-
-        $conferences = DB::table('conferences')
-            ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-            ->select('conferences.*', 'users.company_name')
-            ->where('conferences.status', 'rejected')
-            ->get();
-
-        return response()->json([
-            'data' => $conferences,
-        ], 200);
-    }
-
-    public function approveConference(string $transactionId, Request $request)
-    {
-        $conference = Conference::where('transaction_id', $transactionId)->first();
-        $conference->status = "approved";
-        $conference->conference_approved_at = Carbon::parse($request->approvedDate)->format('Y-m-d H:i:s');
-        $conference->save();
-
-        return response()->json([
-            'message' => 'Conference approved.'
-        ])->setStatusCode(200);
-
-    }
-
-    public function rejectConference(string $transactionId, Request $request)
-    {
-        $conference = Conference::where('transaction_id', $transactionId)->first();
-        $conference->status = "rejected";
-        $conference->conference_rejected_at = Carbon::parse($request->rejectedDate)->format('Y-m-d H:i:s');
-        $conference->save();
-
-        return response()->json([
-            'message' => 'Conference rejected.'
-        ])->setStatusCode(200);
-    }
-
-    public function getConferenceDetails(string $transactionId)
-    {
-// Get the conference detail
-        $conferenceDetail = DB::table('conferences')
-            ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-            ->join('orders', 'conferences.transaction_id', '=', 'orders.transaction_id')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('conferences.*', 'users.company_name', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'orders.date_of_loading', 'orders.date_of_discharge', 'orders.shipper_name', 'orders.consignee_name')
-            ->where('conferences.transaction_id', $transactionId)
-            ->first();
-
-        // If not found
-        if (!$conferenceDetail) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "Conference not found."
-                        ]
-                    ]
-                ], 404)
-            );
-        }
-
-//        return $conferenceDetail;
-        return response()->json([
-            'data' => $conferenceDetail,
-        ], 200);
-    }
-
 
 
     public function updateDocument(UpdateDocumentRequest $request)
@@ -404,7 +272,7 @@ class OrderController extends Controller
             // Get the file
             $document = $request->file('document');
 
-//            Document type location
+            //            Document type location
             // Set file name
             $file_name = $data['transaction_id'] . '-' . $data['type'] . '.' . $document->extension();
             $file_name = str_replace(" ", "_", $file_name);
@@ -432,17 +300,141 @@ class OrderController extends Controller
                     // Update the user file path in databases
                     $order->draught_survey_document_url = 'documents/' . $file_name;
                     break;
-//                default:
-//                    echo "Your favorite color is neither red, blue, nor green!";
+                    //                default:
+                    //                    echo "Your favorite color is neither red, blue, nor green!";
             }
 
             $order->save();
-//            Access file
-//            http://10.104.220.16:8000/storage/documents/TRX1717142358-shipping_instruction.pdf
+            //            Access file
+            //            http://10.104.220.16:8000/storage/documents/TRX1717142358-shipping_instruction.pdf
         }
 
         return (new UpdateDocumentResource($order))->response()->setStatusCode(200);
     }
 
 
+    public function pendingOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'order_pending'
+        $pendingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'order_pending')
+            ->get();
+
+
+        return response()->json([
+            'data' => $pendingOrder,
+        ], 200);
+    }
+
+    public function paymentPendingOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'payment_pending'
+        $paymentPendingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'payment_pending')
+            ->get();
+
+
+        return response()->json([
+            'data' => $paymentPendingOrder,
+        ], 200);
+    }
+
+    public function onShippingOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'on_shipping'
+        $onShippingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'on_shipping')
+            ->get();
+
+
+        return response()->json([
+            'data' => $onShippingOrder,
+        ], 200);
+    }
+
+    public function completedOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'order_completed'
+        $onShippingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'order_completed')
+            ->get();
+
+
+        return response()->json([
+            'data' => $onShippingOrder,
+        ], 200);
+    }
+
+    public function canceledOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'order_canceled'
+        $onShippingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'order_canceled')
+            ->get();
+
+
+        return response()->json([
+            'data' => $onShippingOrder,
+        ], 200);
+    }
+
+    public function rejectedOrderSearch(Request $request): JsonResponse
+    {
+        // Only return Order with status 'order_canceled'
+        $onShippingOrder = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+            ->where('status', 'order_rejected')
+            ->get();
+
+
+        return response()->json([
+            'data' => $onShippingOrder,
+        ], 200);
+    }
+
+    public function getOrderDetails(string $transactionId)
+    {
+        // Get the order detail
+        $orderDetail = DB::table('orders')
+            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'orders.date_of_loading', 'orders.date_of_discharge', 'orders.shipper_name', 'orders.consignee_name')
+            ->where('orders.transaction_id', $transactionId)
+            ->first();
+
+        // If not found
+        if (!$orderDetail) {
+            throw new HttpResponseException(
+                response([
+                    "errors" => [
+                        "message" => [
+                            "Order not found."
+                        ]
+                    ]
+                ], 404)
+            );
+        }
+
+        //        return $conferenceDetail;
+        return response()->json([
+            'data' => $orderDetail,
+        ], 200);
+    }
 }

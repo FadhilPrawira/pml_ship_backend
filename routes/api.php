@@ -34,15 +34,24 @@ Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class
 Route::patch('/addShipperConsignee', [App\Http\Controllers\Api\OrderController::class, 'addShipperConsignee'])->middleware('auth:sanctum');
 Route::post('/summaryOrder', [App\Http\Controllers\Api\OrderController::class, 'summaryOrder'])->middleware('auth:sanctum');
 
-Route::post('/addConference', [App\Http\Controllers\Api\OrderController::class, 'addConference'])->middleware('auth:sanctum');
-Route::get('/pendingConferences', [App\Http\Controllers\Api\OrderController::class, 'pendingConferenceSearch'])->middleware('auth:sanctum');
-Route::get('/approvedConferences', [App\Http\Controllers\Api\OrderController::class, 'approvedConferenceSearch'])->middleware('auth:sanctum');
-Route::get('/rejectedConferences', [App\Http\Controllers\Api\OrderController::class, 'rejectedConferenceSearch'])->middleware('auth:sanctum');
+Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::class, 'addConference'])->middleware('auth:sanctum');
+Route::get('/pendingConferences', [App\Http\Controllers\Api\ConferenceController::class, 'pendingConferenceSearch'])->middleware('auth:sanctum');
+Route::get('/approvedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'approvedConferenceSearch'])->middleware('auth:sanctum');
+Route::get('/rejectedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'rejectedConferenceSearch'])->middleware('auth:sanctum');
 
-Route::patch('/conferences/{transactionId}/approve', [App\Http\Controllers\Api\OrderController::class, 'approveConference'])->middleware('auth:sanctum');
-Route::patch('/conferences/{transactionId}/reject', [App\Http\Controllers\Api\OrderController::class, 'rejectConference'])->middleware('auth:sanctum');
-Route::get('/conferences/{transactionId}', [App\Http\Controllers\Api\OrderController::class, 'getConferenceDetails'])->middleware('auth:sanctum');
+Route::patch('/conferences/{transactionId}/approve', [App\Http\Controllers\Api\ConferenceController::class, 'approveConference'])->middleware('auth:sanctum');
+Route::patch('/conferences/{transactionId}/reject', [App\Http\Controllers\Api\ConferenceController::class, 'rejectConference'])->middleware('auth:sanctum');
+Route::get('/conferences/{transactionId}', [App\Http\Controllers\Api\ConferenceController::class, 'getConferenceDetails'])->middleware('auth:sanctum');
 
 Route::put('/updateDocument', [App\Http\Controllers\Api\OrderController::class, 'updateDocument'])->middleware('auth:sanctum');
 
-Route::get('/history', [App\Http\Controllers\Api\HistoryController::class, 'index'])->middleware('auth:sanctum');
+// TODO: Fix file name
+Route::get('/orders/{transactionId}', [App\Http\Controllers\Api\OrderController::class, 'getOrderDetails'])->middleware('auth:sanctum');
+
+// Search order
+Route::get('/pendingOrders', [App\Http\Controllers\Api\OrderController::class, 'pendingOrderSearch'])->middleware('auth:sanctum');
+Route::get('/paymentPendingOrders', [App\Http\Controllers\Api\OrderController::class, 'paymentPendingOrderSearch'])->middleware('auth:sanctum');
+Route::get('/onShippingOrders', [App\Http\Controllers\Api\OrderController::class, 'onShippingOrderSearch'])->middleware('auth:sanctum');
+Route::get('/completedOrders', [App\Http\Controllers\Api\OrderController::class, 'completedOrderSearch'])->middleware('auth:sanctum');
+Route::get('/canceledOrders', [App\Http\Controllers\Api\OrderController::class, 'canceledOrderSearch'])->middleware('auth:sanctum');
+Route::get('/rejectedOrders', [App\Http\Controllers\Api\OrderController::class, 'rejectedOrderSearch'])->middleware('auth:sanctum');

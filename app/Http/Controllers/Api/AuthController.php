@@ -157,12 +157,12 @@ class AuthController extends Controller
 
             // Set file name
             $file_name = $user->company_name . '-' . $user->id . '.' . $company_akta_url->extension();
-            $file_name = str_replace(" ","_",$file_name);
+            $file_name = str_replace(" ", "_", $file_name);
             // Store the new file
             $company_akta_url->storeAs('public/documents', $file_name);
 
             // Update the user file path in databases
-//            $user->company_akta_url = 'documents/' . $file_name;
+            //            $user->company_akta_url = 'documents/' . $file_name;
             $user->company_akta_url = $file_name;
             $user->save();
         }
