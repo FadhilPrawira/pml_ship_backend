@@ -23,16 +23,41 @@ Route::get('/user', [App\Http\Controllers\Api\UserController::class, 'getUserDet
 Route::put('/user', [App\Http\Controllers\Api\UserController::class, 'update'])->middleware('auth:sanctum');
 
 // Get all users that have role 'customer'. If 'status' specified, then get all users with that status
+// This is based on migration status enum
 // /users?status=pending
 // /users?status=approved
 // /users?status=rejected
 Route::get('/users', [App\Http\Controllers\Api\UserController::class, 'index'])->middleware('auth:sanctum');
 
-// get detail from a specific user. This is used for admin to get user detail
+// get detail from a specific user. Only admin can get user detail
 Route::get('/users/{userId}', [App\Http\Controllers\Api\UserController::class, 'show'])->where('id', '[0-9]+')->middleware('auth:sanctum');
 
 Route::patch('/users/{userId}/approve', [App\Http\Controllers\Api\UserController::class, 'approveUser'])->middleware('auth:sanctum');
 Route::patch('/users/{userId}/reject', [App\Http\Controllers\Api\UserController::class, 'rejectUser'])->middleware('auth:sanctum');
+
+
+// Search order. All roles can access this route
+// This is based on migration status enum
+// /orders?status=order_pending
+// /orders?status=payment_pending
+// /orders?status=on_shipping
+// /orders?status=order_completed
+// /orders?status=order_canceled
+// /orders?status=order_rejected
+Route::get('/orders', [App\Http\Controllers\Api\OrderController::class, 'index'])->middleware('auth:sanctum');
+
+// get detail from a specific transaction. All roles can access this route
+Route::get('/orders/{transactionId}', [App\Http\Controllers\Api\OrderController::class, 'show'])->middleware('auth:sanctum');
+
+
+Route::patch('/conferences/{transactionId}/approve', [App\Http\Controllers\Api\ConferenceController::class, 'approveConference'])->middleware('auth:sanctum');
+Route::patch('/conferences/{transactionId}/reject', [App\Http\Controllers\Api\ConferenceController::class, 'rejectConference'])->middleware('auth:sanctum');
+
+// Get detail conference from a specific transaction. Only admin can access this route
+Route::get('/conferences/{transactionId}', [App\Http\Controllers\Api\ConferenceController::class, 'getConferenceDetails'])->middleware('auth:sanctum');
+Route::get('/pendingConferences', [App\Http\Controllers\Api\ConferenceController::class, 'pendingConferenceSearch'])->middleware('auth:sanctum');
+Route::get('/approvedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'approvedConferenceSearch'])->middleware('auth:sanctum');
+Route::get('/rejectedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'rejectedConferenceSearch'])->middleware('auth:sanctum');
 
 
 Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'get'])->middleware('auth:sanctum');
@@ -43,23 +68,7 @@ Route::patch('/addShipperConsignee', [App\Http\Controllers\Api\OrderController::
 Route::post('/summaryOrder', [App\Http\Controllers\Api\OrderController::class, 'summaryOrder'])->middleware('auth:sanctum');
 
 Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::class, 'addConference'])->middleware('auth:sanctum');
-Route::get('/pendingConferences', [App\Http\Controllers\Api\ConferenceController::class, 'pendingConferenceSearch'])->middleware('auth:sanctum');
-Route::get('/approvedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'approvedConferenceSearch'])->middleware('auth:sanctum');
-Route::get('/rejectedConferences', [App\Http\Controllers\Api\ConferenceController::class, 'rejectedConferenceSearch'])->middleware('auth:sanctum');
 
-Route::patch('/conferences/{transactionId}/approve', [App\Http\Controllers\Api\ConferenceController::class, 'approveConference'])->middleware('auth:sanctum');
-Route::patch('/conferences/{transactionId}/reject', [App\Http\Controllers\Api\ConferenceController::class, 'rejectConference'])->middleware('auth:sanctum');
-Route::get('/conferences/{transactionId}', [App\Http\Controllers\Api\ConferenceController::class, 'getConferenceDetails'])->middleware('auth:sanctum');
+
 
 Route::put('/updateDocument', [App\Http\Controllers\Api\OrderController::class, 'updateDocument'])->middleware('auth:sanctum');
-
-// TODO: Fix file name
-Route::get('/orders/{transactionId}', [App\Http\Controllers\Api\OrderController::class, 'getOrderDetails'])->middleware('auth:sanctum');
-
-// Search order
-Route::get('/pendingOrders', [App\Http\Controllers\Api\OrderController::class, 'pendingOrderSearch'])->middleware('auth:sanctum');
-Route::get('/paymentPendingOrders', [App\Http\Controllers\Api\OrderController::class, 'paymentPendingOrderSearch'])->middleware('auth:sanctum');
-Route::get('/onShippingOrders', [App\Http\Controllers\Api\OrderController::class, 'onShippingOrderSearch'])->middleware('auth:sanctum');
-Route::get('/completedOrders', [App\Http\Controllers\Api\OrderController::class, 'completedOrderSearch'])->middleware('auth:sanctum');
-Route::get('/canceledOrders', [App\Http\Controllers\Api\OrderController::class, 'canceledOrderSearch'])->middleware('auth:sanctum');
-Route::get('/rejectedOrders', [App\Http\Controllers\Api\OrderController::class, 'rejectedOrderSearch'])->middleware('auth:sanctum');

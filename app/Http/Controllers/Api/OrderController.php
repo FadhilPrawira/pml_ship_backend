@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use stdClass;
 
 class OrderController extends Controller
 {
@@ -313,7 +313,7 @@ class OrderController extends Controller
     }
 
 
-    public function pendingOrderSearch(Request $request): JsonResponse
+    public function pendingOrderSearch(Request $request)
     {
         // Only return Order with status 'order_pending'
         $pendingOrder = DB::table('orders')
@@ -329,87 +329,124 @@ class OrderController extends Controller
         ], 200);
     }
 
-    public function paymentPendingOrderSearch(Request $request): JsonResponse
+    /**
+     * Display a listing of the resource.
+     */
+
+    // Get customer by status for admin
+    public function index(Request $request)
     {
-        // Only return Order with status 'payment_pending'
-        $paymentPendingOrder = DB::table('orders')
+        // Validate the request
+        $request->validate([
+            // This is based on migration status enum
+            'status' => 'string|in:order_pending,payment_pending,on_shipping,order_completed,order_canceled,order_rejected',
+        ]);
+
+        // Get the orders
+        $orders = DB::table('orders')
             ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
             ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
             ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-            ->where('status', 'payment_pending')
+            ->where('status', 'like', "%{$request->status}%")
             ->get();
 
-
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Orders with status ' . $request->status . ' not found',
+                'data' => []
+            ], 404);
+        }
         return response()->json([
-            'data' => $paymentPendingOrder,
-        ], 200);
+            'status' => 'success',
+            'message' => $request->has('status') ? 'Get all orders by status ' . $request->status . ' success' : 'Get orders list success',
+            'data' => $orders
+        ]);
     }
 
-    public function onShippingOrderSearch(Request $request): JsonResponse
-    {
-        // Only return Order with status 'on_shipping'
-        $onShippingOrder = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-            ->where('status', 'on_shipping')
-            ->get();
+    // public function paymentPendingOrderSearch(Request $request)
+    // {
+    //     // Only return Order with status 'payment_pending'
+    //     $paymentPendingOrder = DB::table('orders')
+    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+    //         ->where('status', 'payment_pending')
+    //         ->get();
 
 
-        return response()->json([
-            'data' => $onShippingOrder,
-        ], 200);
-    }
+    //     return response()->json([
+    //         'data' => $paymentPendingOrder,
+    //     ], 200);
+    // }
 
-    public function completedOrderSearch(Request $request): JsonResponse
-    {
-        // Only return Order with status 'order_completed'
-        $onShippingOrder = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-            ->where('status', 'order_completed')
-            ->get();
-
-
-        return response()->json([
-            'data' => $onShippingOrder,
-        ], 200);
-    }
-
-    public function canceledOrderSearch(Request $request): JsonResponse
-    {
-        // Only return Order with status 'order_canceled'
-        $onShippingOrder = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-            ->where('status', 'order_canceled')
-            ->get();
+    // public function onShippingOrderSearch(Request $request)
+    // {
+    //     // Only return Order with status 'on_shipping'
+    //     $onShippingOrder = DB::table('orders')
+    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+    //         ->where('status', 'on_shipping')
+    //         ->get();
 
 
-        return response()->json([
-            'data' => $onShippingOrder,
-        ], 200);
-    }
+    //     return response()->json([
+    //         'data' => $onShippingOrder,
+    //     ], 200);
+    // }
 
-    public function rejectedOrderSearch(Request $request): JsonResponse
-    {
-        // Only return Order with status 'order_canceled'
-        $onShippingOrder = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-            ->where('status', 'order_rejected')
-            ->get();
+    // public function completedOrderSearch(Request $request)
+    // {
+    //     // Only return Order with status 'order_completed'
+    //     $onShippingOrder = DB::table('orders')
+    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+    //         ->where('status', 'order_completed')
+    //         ->get();
 
 
-        return response()->json([
-            'data' => $onShippingOrder,
-        ], 200);
-    }
+    //     return response()->json([
+    //         'data' => $onShippingOrder,
+    //     ], 200);
+    // }
 
-    public function getOrderDetails(string $transactionId)
+    // public function canceledOrderSearch(Request $request)
+    // {
+    //     // Only return Order with status 'order_canceled'
+    //     $onShippingOrder = DB::table('orders')
+    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+    //         ->where('status', 'order_canceled')
+    //         ->get();
+
+
+    //     return response()->json([
+    //         'data' => $onShippingOrder,
+    //     ], 200);
+    // }
+
+    // public function rejectedOrderSearch(Request $request)
+    // {
+    //     // Only return Order with status 'order_canceled'
+    //     $onShippingOrder = DB::table('orders')
+    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
+    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
+    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+    //         ->where('status', 'order_rejected')
+    //         ->get();
+
+
+    //     return response()->json([
+    //         'data' => $onShippingOrder,
+    //     ], 200);
+    // }
+    /**
+     * Display the specified resource.
+     */
+    public function show(String $transactionId)
     {
         // Get the order detail
         $orderDetail = DB::table('orders')
@@ -421,19 +458,17 @@ class OrderController extends Controller
 
         // If not found
         if (!$orderDetail) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "Order not found."
-                        ]
-                    ]
-                ], 404)
-            );
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order info not found.',
+                'data' => new stdClass(),
+            ], 200);
         }
 
-        //        return $conferenceDetail;
+        // Return the response
         return response()->json([
+            'status' => 'success',
+            'message' => 'Get order detail success',
             'data' => $orderDetail,
         ], 200);
     }

@@ -20,6 +20,7 @@ class UserController extends Controller
     {
         // Validate the request
         $request->validate([
+            // This is based on migration status enum
             'status' => 'string|in:pending,approved,rejected',
         ]);
 
@@ -28,8 +29,6 @@ class UserController extends Controller
         if ($user->role == 'admin') {
             // Get the orders
             $customers = User::where('role', 'customer')
-                // ->where('status', $request->status)
-
                 ->where('status', 'like', "%{$request->status}%")
                 ->get();
 
@@ -37,7 +36,7 @@ class UserController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Customers with status ' . $request->status . ' not found',
-                    'data' => $customers
+                    'data' => []
                 ], 404);
             }
             return response()->json([
@@ -121,7 +120,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Get user detail success',
-            'data' =>        $request->user()
+            'data' => $request->user()
 
         ]);
     }
@@ -166,6 +165,7 @@ class UserController extends Controller
     // Reject user
     public function rejectUser(int $userId, Request $request)
     {
+        // TODO: Add reject reason
         // Get the user
         $user = User::where('id', $userId)->first();
         // Check if the user exists
