@@ -12,19 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('name', length: 100)->change();
-            $table->string('email', length: 100)->change();
-            $table->enum('role', ['admin', 'user'])->after('id')->default('user');
+            $table->enum('role', ['admin', 'customer'])->after('id')->default('customer');
             $table->enum('status', ['pending', 'approved', 'rejected'])->after('id')->default('pending');
-            $table->timestampTz('rejectedDate', precision: 0)->nullable();
-            $table->timestampTz('approvedDate', precision: 0)->nullable();
+            $table->string('name', length: 100)->change();
             $table->string('phone', length: 20)->after('name')->nullable();
+            $table->string('email', length: 100)->change();
             $table->string('company_name', length: 255)->after('password')->nullable();
             $table->string('company_address', length: 255)->after('company_name')->nullable();
             $table->string('company_phone', length: 20)->after('company_address')->nullable();
             $table->string('company_email', length: 100)->after('company_phone')->nullable();
             $table->string('company_NPWP', length: 20)->after('company_email')->nullable();
-            $table->string('company_akta_url', length: 255)->after('company_NPWP')->nullable();
+            $table->string('company_akta', length: 255)->after('company_NPWP')->nullable();
+            $table->string('reason_rejected', length: 255)->after('company_akta')->nullable();
+            $table->timestampTz('rejected_at', precision: 0)->nullable();
+            $table->timestampTz('approved_at', precision: 0)->nullable();
             $table->softDeletes();
         });
     }
@@ -37,13 +38,17 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
 
             $table->dropColumn('role');
+            $table->dropColumn('status');
             $table->dropColumn('phone');
             $table->dropColumn('company_name');
             $table->dropColumn('company_address');
             $table->dropColumn('company_phone');
             $table->dropColumn('company_email');
             $table->dropColumn('company_NPWP');
-            $table->dropColumn('company_akta_url');
+            $table->dropColumn('company_akta');
+            $table->dropColumn('reason_rejected');
+            $table->dropColumn('rejected_at');
+            $table->dropColumn('approved_at');
             $table->dropColumn('deleted_at');
         });
     }

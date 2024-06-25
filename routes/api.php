@@ -1,6 +1,7 @@
 <?php
 
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 // login
@@ -10,18 +11,25 @@ Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
 Route::delete('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // register
-Route::post('/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
+Route::post('/customer/register', [App\Http\Controllers\Api\AuthController::class, 'customerRegister']);
 
 // get currency
 Route::get('/currencies', [App\Http\Controllers\Api\CurrencyController::class, 'index'])->middleware('auth:sanctum');
 
-Route::get('/user', [App\Http\Controllers\Api\UserController::class, 'get'])->middleware('auth:sanctum');
-Route::patch('/user', [App\Http\Controllers\Api\UserController::class, 'update'])->middleware('auth:sanctum');
-Route::get('/users/{userId}', [App\Http\Controllers\Api\UserController::class, 'getDetails'])->where('id', '[0-9]+')->middleware('auth:sanctum');
-Route::get('/users', [App\Http\Controllers\Api\UserController::class, 'search'])->middleware('auth:sanctum');
-Route::get('/pendingUsers', [App\Http\Controllers\Api\UserController::class, 'pendingUserSearch'])->middleware('auth:sanctum');
-Route::get('/approvedUsers', [App\Http\Controllers\Api\UserController::class, 'approvedUserSearch'])->middleware('auth:sanctum');
-Route::get('/rejectedUsers', [App\Http\Controllers\Api\UserController::class, 'rejectedUserSearch'])->middleware('auth:sanctum');
+// Get user detail from authenticated user
+Route::get('/user', [App\Http\Controllers\Api\UserController::class, 'getUserDetail'])->middleware('auth:sanctum');
+
+// update authenticated user info
+Route::put('/user', [App\Http\Controllers\Api\UserController::class, 'update'])->middleware('auth:sanctum');
+
+// Get all users that have role 'customer'. If 'status' specified, then get all users with that status
+// /users?status=pending
+// /users?status=approved
+// /users?status=rejected
+Route::get('/users', [App\Http\Controllers\Api\UserController::class, 'index'])->middleware('auth:sanctum');
+
+// get detail from a specific user. This is used for admin to get user detail
+Route::get('/users/{userId}', [App\Http\Controllers\Api\UserController::class, 'show'])->where('id', '[0-9]+')->middleware('auth:sanctum');
 
 Route::patch('/users/{userId}/approve', [App\Http\Controllers\Api\UserController::class, 'approveUser'])->middleware('auth:sanctum');
 Route::patch('/users/{userId}/reject', [App\Http\Controllers\Api\UserController::class, 'rejectUser'])->middleware('auth:sanctum');

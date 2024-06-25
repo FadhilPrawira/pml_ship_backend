@@ -26,16 +26,16 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone'=> fake()->phoneNumber(),
+            'phone' => fake()->phoneNumber(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'company_name' => fake()->company(),
-            'company_address'=> fake()->address(),
-            'company_phone'=> fake()->phoneNumber(),
-            'company_email'=> fake()->unique()->safeEmail(),
-            'company_NPWP'=> fake()->randomNumber(9),
-            'company_akta_url'=> fake()->imageUrl(),
+            'company_address' => fake()->address(),
+            'company_phone' => fake()->phoneNumber(),
+            'company_email' => fake()->unique()->safeEmail(),
+            'company_NPWP' => fake()->randomNumber(9),
+            'company_akta' => fake()->imageUrl(),
         ];
     }
 

@@ -3,140 +3,113 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserLoginRequest;
-use App\Http\Requests\UserRegisterRequest;
-use App\Http\Resources\UserResource;
+
 use App\Models\User;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rules\File;
 
 class AuthController extends Controller
 {
     // login
-    public function login(UserLoginRequest $request): UserResource
+    public function login(Request $request)
     {
+        // Validate the request
+        $request->validate([
+            'email' => ['required', 'max:100', 'email'],
+            'password' => ['required', Password::min(8), 'max:255'],
+        ]);
 
-        $data = $request->validated();
-        $user = User::where('email', $data['email'])->first();
+        // Search by email
+        $user = User::where('email', $request->email)->first();
 
-        // check if user exists
-        if (!$user || !Hash::check($data['password'], $user->password)) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "Email or password is incorrect."
-                        ]
-                    ]
-                ], 401)
-            );
+        // Check if the user exists and if password correct
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email or password is incorrect.'
+            ], 401);
         }
-
-
-        //        $user->createToken('auth_token')->plainTextToken;
-        $user->save();
-
-        //        return new UserResource($user);
+        // Generate token
         $auth_token = env('AUTH_TOKEN_SANCTUM', 'token_rahasia_default');
-        return (new UserResource($user))->additional([
-            'token' => $user->createToken($auth_token)->plainTextToken,
+        $token = $user->createToken($auth_token)->plainTextToken;
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login success',
+            'data' => [
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                ],
+                'token' => $token
+            ]
         ]);
     }
 
     // logout
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request)
     {
+        // Get the authenticated user
+        $user = $request->user();
 
-        $request->user()->currentAccessToken()->delete();
+        // Revoke the token that was used to authenticate the current request
+        $user->currentAccessToken()->delete();
 
         return response()->json([
-            'data' => [
-                'message' => 'Logged out successfully'
-            ]
-        ], 200);
-
-
-        //            If user not authenticated, this will return
-        //        {
-        //            "data": {
-        //            "message": "User unauthorized"
-        //             }
-        //         }
-
-        //        Edit custom message in \vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php
-        //        On function ExceptionHandler@register
-        //        Reference: https://stackoverflow.com/questions/68516285/customize-laravel-sanctum-unauthorize-response
-
-
+            'status' => 'success',
+            'message' => 'Logout success'
+        ]);
     }
-    // I think we better use throw HttpResponseException than edit custom message in Handler.php
-    //throw new HttpResponseException(
-    //response([
-    //"errors" => [
-    //"email" => [
-    //"The email has already exist."
-    //]
-    //]
-    //], 400)
-    //);
 
-
-    //    public function logout(Request $request){
-    //
-    //
-    //        if (Auth::check()) {
-    //
-    //            $request->user()->currentAccessToken()->delete();
-    //
-    //            return response()->json([
-    //                'data' => [
-    //                'message' => 'Logged out successfully'
-    //                    ]
-    //            ]);
-    //        }
-    //
-    //        return response()->json([
-    //            'data' => [
-    //            'message' => 'Logged out failed'
-    //                ]
-    //        ])->setStatusCode(400);
-    //
-    //    }
-
-
-    public function register(UserRegisterRequest $request): JsonResponse
+    public function customerRegister(Request $request): JsonResponse
     {
-        $data = $request->validated();
-        //        Check if email already exist
-        if (User::where('email', $data['email'])->exists()) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "email" => [
-                            "The email has already exist."
-                        ]
-                    ]
-                ], 400)
-            );
-        }
-        //        Set default role and status
-        $data['role'] = 'user';
-        $data['status'] = 'pending';
+        // Validate the request
+        $request->validate([
+            'name' => ['required', 'max:100'],
+            'phone' => ['required', 'max:20'],
+            'email' => ['required', 'max:100', 'email', 'unique:users,email'],
+            'password' => ['required', Password::min(8), 'max:255'],
+            'company_name' => ['required', 'max:255'],
+            'company_address' => ['required', 'max:255'],
+            'company_phone' => ['required', 'max:20'],
+            'company_email' => ['required', 'email', 'max:100'],
+            'company_NPWP' => ['required', 'max:20'],
+            'company_akta' => ['required', File::types(['pdf'])],
+        ]);
 
-        //        Hash password
+
+        // Get all request data
+        $data = $request->all();
+
+        // Store the file in variable
+        $company_akta_file = $request->file('company_akta');
+
+        // Set file name
+        $cleaned_company_name = str_replace(" ", "_", $data['company_name']);
+        $company_akta_filename = $cleaned_company_name . '.' . $company_akta_file->extension();
+
+
+        // Store the image in the storage
+        $company_akta_file->storeAs('public/file', $company_akta_filename);
+        // http://localhost:8000/storage/file/YOUR_IMAGE_NAME.EXTENSION
+
+        // Hash the password
         $data['password'] = Hash::make($data['password']);
-
-        //        Create user/Input into database
-        // $user = User::create($data);
+        // Set the role to 'customer'
+        $data['role'] = 'customer';
+        // Set the status to 'pending'
+        $data['status'] = 'pending';
 
         // Create a new user
         $user = new User();
 
-        $user->role = $data['role'];
         $user->status = $data['status'];
+        $user->role = $data['role'];
         $user->name = $data['name'];
         $user->phone = $data['phone'];
         $user->email = $data['email'];
@@ -146,56 +119,46 @@ class AuthController extends Controller
         $user->company_phone = $data['company_phone'];
         $user->company_email = $data['company_email'];
         $user->company_NPWP = $data['company_NPWP'];
+        // Update the user image path in database
+        $user->company_akta = $company_akta_filename;
 
+        // Save the user
         $user->save();
 
-        // Check if file is not empty and file is uploaded
-        if ($request->hasFile('company_akta_url')) {
-
-            // Get the file
-            $company_akta_url = $request->file('company_akta_url');
-
-            // Set file name
-            $file_name = $user->company_name . '-' . $user->id . '.' . $company_akta_url->extension();
-            $file_name = str_replace(" ", "_", $file_name);
-            // Store the new file
-            $company_akta_url->storeAs('public/documents', $file_name);
-
-            // Update the user file path in databases
-            //            $user->company_akta_url = 'documents/' . $file_name;
-            $user->company_akta_url = $file_name;
-            $user->save();
-        }
-
-        return (new UserResource($user))->response()->setStatusCode(201);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User registered successfully',
+            'data' => $user,
+        ], 201);
     }
 
     // TODO: Implement Forgot Password
     // step 1: forgot password clicked/requested->create code->send code through email
-    public function forgotPassword(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ]);
+    // public function forgotPassword(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'email' => 'required|email|exists:users,email',
+    //     ]);
 
-        $user = User::where('email', $data['email'])->first();
 
-        // Generate random code
-        $code = rand(100000, 999999);
+    //     $user = User::where('email', $data['email'])->first();
 
-        // Save code to user
-        $user->password_reset_code = $code;
-        $user->save();
+    //     // Generate random code
+    //     $code = rand(100000, 999999);
 
-        // Send code to user email
-        // Mail::to($user->email)->send(new ForgotPasswordMail($code));
+    //     // Save code to user
+    //     $user->password_reset_code = $code;
+    //     $user->save();
 
-        return response()->json([
-            'data' => [
-                'message' => 'Code has been sent to your email'
-            ]
-        ]);
-    }
+    //     // Send code to user email
+    //     // Mail::to($user->email)->send(new ForgotPasswordMail($code));
+
+    //     return response()->json([
+    //         'data' => [
+    //             'message' => 'Code has been sent to your email'
+    //         ]
+    //     ]);
+    // }
     // step 2: user input code->check code
     // step 3: user input new password->update password
 

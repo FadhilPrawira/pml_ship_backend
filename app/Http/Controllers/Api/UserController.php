@@ -3,157 +3,200 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserUpdateRequest;
-use App\Http\Resources\UserCollection;
-use App\Http\Resources\UserUpdateResource;
+
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use stdClass;
 
 class UserController extends Controller
 {
-    public function update(UserUpdateRequest $request): UserUpdateResource
+    /**
+     * Display a listing of the resource.
+     */
+
+    // Get customer by status for admin
+    public function index(Request $request)
     {
-        $data = $request->validated();
-        if (Auth::check()) {
-            $user = User::where('id', Auth::id())->first();
-            if (isset($data['name'])) {
-                $user->name = $data['name'];
-            }
-            if (isset($data['phone'])) {
-                $user->phone = $data['phone'];
-            }
-            if (isset($data['email'])) {
-                $user->email = $data['email'];
-            }
-            //        if (isset($data['password'])) {
-            //            Hash::make($data['password']);
-            //        }
-            if (isset($data['company_name'])) {
-                $user->company_name = $data['company_name'];
-            }
-            if (isset($data['company_address'])) {
-                $user->company_address = $data['company_address'];
-            }
-            if (isset($data['company_phone'])) {
-                $user->company_phone = $data['company_phone'];
-            }
-            if (isset($data['company_email'])) {
-                $user->company_email = $data['company_email'];
-            }
-            if (isset($data['company_NPWP'])) {
-                $user->company_NPWP = $data['company_NPWP'];
-            }
+        // Validate the request
+        $request->validate([
+            'status' => 'string|in:pending,approved,rejected',
+        ]);
 
-            $user->save();
+        // Get the authenticated user
+        $user = $request->user();
+        if ($user->role == 'admin') {
+            // Get the orders
+            $customers = User::where('role', 'customer')
+                // ->where('status', $request->status)
+
+                ->where('status', 'like', "%{$request->status}%")
+                ->get();
+
+            if ($customers->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Customers with status ' . $request->status . ' not found',
+                    'data' => $customers
+                ], 404);
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => $request->has('status') ? 'Get all customer by status ' . $request->status . ' success' : 'Get customers list success',
+                'data' => $customers
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to get user data. Must be an admin'
+            ], 403);
         }
-
-        return new UserUpdateResource($user);
     }
 
-    public function getDetails(int $userId)
-    {
-        $user = Auth::user();
 
-        $userDetail = User::where('id', $userId)->first();
-        // If not found
-        if (!$userDetail) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "User not found."
-                        ]
-                    ]
-                ], 404)
-            );
-        }
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => ['max:100'],
+            'phone' => ['max:20'],
+            'email' => ['max:100', 'email'],
+            //            'password' => [Password::min(8), 'max:255'],
+            'company_name' => ['max:255'],
+            'company_address' => ['max:255'],
+            'company_phone' => ['max:20'],
+            'company_email' => ['email', 'max:100'],
+            'company_NPWP' => ['max:20'],
+            // 'company_akta' => ['required', File::types(['pdf'])],
+
+
+        ]);
+        // Get all request data
+        $data = $request->all();
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Update the user
+        $user->update($data);
+
         return response()->json([
-            'data' => $userDetail,
-        ], 200);
-    }
-
-    public function search(Request $request): JsonResponse
-    {
-
-        // Only return users with role 'user'
-        $users = User::query()->where('role', 'user')->get();
-
-        return response()->json(
-            $users,
-            200
-        );
-    }
-
-    public function get(Request $request): JsonResponse
-    {
-        if (Auth::check()) {
-            $user = User::where('id', Auth::id())->first();
-        }
-        return response()->json([
-
+            'status' => 'success',
+            'message' => 'User updated.',
             'data' => $user,
-        ], 200);
-    }
-
-    public function pendingUserSearch(Request $request): JsonResponse
-    {
-
-        // Only return users with role 'user' and status 'pending'
-        $users = User::query()->where('role', 'user')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
-
-        return response()->json([
-            'data' => $users,
-        ], 200);
-    }
-
-    public function approvedUserSearch(Request $request): JsonResponse
-    {
-
-        // Only return users with role 'user' and status 'approved'
-        $users = User::query()->where('role', 'user')->where('status', 'approved')->orderBy('approvedDate', 'desc')->get();
-
-        return response()->json([
-            'data' => $users,
-        ], 200);
-    }
-
-    public function rejectedUserSearch(Request $request): JsonResponse
-    {
-
-        //        Only return users with role 'user' and status 'rejected'
-        //        order by rejectedDate from the latest
-        $users = User::query()->where('role', 'user')->where('status', 'rejected')->orderBy('rejectedDate', 'desc')->get();
-
-        return response()->json([
-            'data' => $users,
-        ], 200);
-    }
-
-    public function approveUser(int $userId, Request $request)
-    {
-        $user = User::where('id', $userId)->first();
-        $user->status = "approved";
-        $user->approvedDate = Carbon::parse($request->approvedDate)->format('Y-m-d H:i:s');
-        $user->save();
-
-        return response()->json([
-            'message' => 'User approved.'
         ])->setStatusCode(200);
     }
 
-    public function rejectUser(int $userId, Request $request)
+    /**
+     * Display the specified resource.
+     */
+
+    public function show(int $userId)
     {
+        // Get the user
+        $customerDetail = User::where('id', $userId)->first();
+
+        // Check if the user exists
+        if (!$customerDetail) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Customer info not found',
+                'data' => new stdClass(), // return empty object
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get customer detail success',
+            'data' => $customerDetail,
+        ], 200);
+    }
+
+    // Get user detail from authenticated user
+    public function getUserDetail(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get user detail success',
+            'data' =>        $request->user()
+
+        ]);
+    }
+
+    // Approve user
+    public function approveUser(int $userId, Request $request)
+    {
+        // Get the user
         $user = User::where('id', $userId)->first();
-        $user->status = "rejected";
-        $user->rejectedDate = Carbon::parse($request->rejectedDate)->format('Y-m-d H:i:s');
+
+        // Check if the user exists
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found',
+                'data' => new stdClass(), // return empty object
+            ], 404);
+        }
+
+        // Check if the status is pending
+        if ($user->status != 'pending') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User status is not pending',
+                'data' => $user,
+            ], 400);
+        }
+        // Change the status to approved
+        $user->status = "approved";
+        // Change the approved date
+        $user->approved_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
+        // Save the user
         $user->save();
 
         return response()->json([
-            'message' => 'User rejected.'
+            'status' => 'success',
+            'message' => 'User approved.',
+            'data' => $user,
+        ])->setStatusCode(200);
+    }
+
+    // Reject user
+    public function rejectUser(int $userId, Request $request)
+    {
+        // Get the user
+        $user = User::where('id', $userId)->first();
+        // Check if the user exists
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found',
+                'data' => new stdClass(), // return empty object
+            ], 404);
+        }
+
+        // Check if the status is pending
+        if ($user->status != 'pending') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User status is not pending',
+                'data' => $user,
+            ], 400);
+        }
+
+        // Change the status to rejected
+        $user->status = "rejected";
+        // Change the rejected date
+        $user->rejected_at = Carbon::parse($request->rejected_at)->format('Y-m-d H:i:s');
+        // Save the user
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User rejected.',
+            'data' => $user,
         ])->setStatusCode(200);
     }
 }

@@ -21,31 +21,35 @@ class UserSeeder extends Seeder
 
             'email' => 'fadhilprawira87@gmail.com',
             'password' => Hash::make('password777'),
+            'approved_at' => now(),
         ]);
         User::factory()->create([
-            'role' => 'user',
+            'role' => 'customer',
             'status' => 'approved',
-            'name' => 'User Test',
+            'name' => 'User Test 6',
 
             'email' => 'user6@example.com',
             'password' => Hash::make('password777'),
+            'approved_at' => now(),
         ]);
         User::factory()->create([
-            'role' => 'user',
+            'role' => 'customer',
             'status' => 'approved',
             'name' => 'Dani Sefianto',
 
             'email' => 'sefiantodani@gmail.com',
             'password' => Hash::make('password777'),
+            'approved_at' => now(),
         ]);
         User::factory()->create([
-            'role' => 'user',
+            'role' => 'customer',
             'status' => 'approved',
             'name' => 'Qory Wiljanova',
 
             'email' => 'qorywiljanova2016@gmail.com',
             'password' => Hash::make('password777'),
+            'approved_at' => now(),
         ]);
-        User::factory(50)->create();
+        // User::factory(50)->create();
     }
 }

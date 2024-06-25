@@ -35,7 +35,7 @@ class UserRegisterRequest extends FormRequest
             'company_phone' => ['required', 'max:20'],
             'company_email' => ['required', 'email', 'max:100'],
             'company_NPWP' => ['required', 'max:20'],
-            // 'company_akta_url' => ['required', 'max:255'],
+
             'company_akta_url' => ['required', File::types(['pdf'])],
         ];
     }
