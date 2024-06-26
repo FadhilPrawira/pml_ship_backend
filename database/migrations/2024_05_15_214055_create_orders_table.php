@@ -19,44 +19,40 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             // shipper_name
             $table->string('shipper_name')->nullable();
-            //            $table->string('shipper_name');
+
             // shipper_address
             $table->string('shipper_address')->nullable();
-            //            $table->string('shipper_address');
+
             // consignee_name
             $table->string('consignee_name')->nullable();
-            //            $table->string('consignee_name');
+
             // consignee_address
             $table->string('consignee_address')->nullable();
-            //            $table->string('consignee_address');
+
             // port_of_loading_id
             $table->foreignId('port_of_loading_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
-            //            $table->foreignId('port_of_loading_id')->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
             // port_of_discharge_id
             $table->foreignId('port_of_discharge_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
-            //            $table->foreignId('port_of_discharge_id')->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('vessel_id')->nullable()->constrained('vessels')->onUpdate('cascade')->onDelete('cascade');
             // date_of_loading
             $table->date('date_of_loading')->nullable();
-            //            $table->date('date_of_loading');
+
             // date_of_discharge
             $table->date('date_of_discharge')->nullable();
-            //            $table->date('date_of_discharge');
+
             // status
             $table->enum('status', ['order_pending', 'payment_pending', 'on_shipping', 'order_completed', 'order_canceled', 'order_rejected']);
             // cargo_description
             $table->text('cargo_description')->nullable();
-            //            $table->text('cargo_description');
+
             // cargo_weight
             $table->string('cargo_weight')->nullable();
-            //            $table->string('cargo_weight');
-            // total_cost
+
             $table->unsignedBigInteger('shipping_cost')->nullable();
             $table->unsignedBigInteger('handling_cost')->nullable();
             $table->unsignedBigInteger('biaya_parkir_pelabuhan')->nullable();
             $table->unsignedBigInteger('tax')->nullable();
-            $table->unsignedBigInteger('total_cost')->nullable();
-            //            $table->string('total_cost');
+            $table->unsignedBigInteger('total_bill')->nullable();
             // shipping_instruction_document_url
             $table->string('shipping_instruction_document_url')->nullable();
             // bill_of_lading_document_url

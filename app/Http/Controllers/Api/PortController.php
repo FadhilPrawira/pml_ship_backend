@@ -10,19 +10,27 @@ use Illuminate\Support\Facades\Auth;
 
 class PortController extends Controller
 {
-    public function get(Request $request)
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
     {
+        // Get all ports
         $ports = Port::all();
-        if ($ports->count() == 0) {
-            throw new HttpResponseException(response()->json([
-                'errors' => [
-                    'message' => 'No ports found',
-                ]
-            ], 204));
+
+        // Check if there are ports
+        if ($ports->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ports not found',
+                'data' => []
+            ], 404);
         }
 
         return response()->json([
-            'data' => $ports,
-        ], 200);
+            'status' => 'success',
+            'message' => 'Get ports list success',
+            'data' => $ports
+        ]);
     }
 }

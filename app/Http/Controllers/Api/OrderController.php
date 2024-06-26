@@ -26,8 +26,85 @@ use stdClass;
 
 class OrderController extends Controller
 {
+    public function createOrder(Request $request)
+    {
+        // Validate the request
+        $data = $request->validate([
+            'port_of_loading_id' => 'required|integer|exists:ports,id',
+            'port_of_discharge_id' => 'required|integer|exists:ports,id',
+            'date_of_loading' => 'required|date',
+            'date_of_discharge' => 'required|date',
+            'shipper_name' => 'required|string',
+            'shipper_address' => 'required|string',
+            'consignee_name' => 'required|string',
+            'consignee_address' => 'required|string',
+            'shipping_cost' => 'required|integer',
+            'handling_cost' => 'required|integer',
+            'biaya_parkir_pelabuhan' => 'required|integer',
+        ]);
+
+        // Set the transaction_id
+        $data['transaction_id'] = 'TRX' . time();
+        // Set the status
+        $data['status'] = 'order_pending';
+
+        // Calculate the cost details
+        $shippingCost = $data['shipping_cost'];
+        $handlingCost = $data['handling_cost'];
+        $biayaParkirPelabuhan = $data['biaya_parkir_pelabuhan'];
+        $totalCost = $shippingCost + $handlingCost + $biayaParkirPelabuhan;
+        // Tax = 10% of total price
+        $tax = $totalCost * 0.1;
+        // Total bill
+        $totalBill = $totalCost + $tax;
+
+        $data['tax'] = $tax;
+        $data['total_bill'] = $totalBill;
+
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order success to create',
+            'data' => $data
+        ], 201);
+    }
+
+    public function NEWcheckQuotation(Request $request)
+    {
+        // Validate the request
+        $data = $request->validate([
+            'port_of_loading_id' => 'required|integer|exists:ports,id',
+            'port_of_discharge_id' => 'required|integer|exists:ports,id',
+            'date_of_loading' => 'required|date',
+            'cargo_description' => 'required|string',
+            'cargo_weight' => 'required|string',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Check quotation success',
+            'data' => $data
+        ], 200);
+    }
+
+    public function NEWplaceQuotation(Request $request)
+    {
+        // Validate the request
+        $data = $request->validate([
+            'vessel_id' => 'required|integer',
+            'date_of_discharge' => 'required|date',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Place quotation success',
+            'data' => $data
+        ], 200);
+    }
+
     public function orderPort(OrderPortRequest $request)
     {
+        // Validate data
         $data = $request->validated();
         $data['transaction_id'] = 'TRX' . time();
         $data['status'] = 'order_pending';
