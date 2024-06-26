@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('company_email', length: 100)->after('company_phone')->nullable();
             $table->string('company_NPWP', length: 20)->after('company_email')->nullable();
             $table->string('company_akta', length: 255)->after('company_NPWP')->nullable();
-            $table->string('reason_rejected', length: 255)->after('company_akta')->nullable();
+            $table->text('reason_rejected')->nullable();
             $table->timestampTz('rejected_at', precision: 0)->nullable();
             $table->timestampTz('approved_at', precision: 0)->nullable();
             $table->softDeletes();

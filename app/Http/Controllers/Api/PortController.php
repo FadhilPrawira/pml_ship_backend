@@ -24,13 +24,13 @@ class PortController extends Controller
                 'status' => 'error',
                 'message' => 'Ports not found',
                 'data' => []
-            ], 404);
+            ])->setStatusCode(404);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Get ports list success',
             'data' => $ports
-        ]);
+        ])->setStatusCode(200);
     }
 }

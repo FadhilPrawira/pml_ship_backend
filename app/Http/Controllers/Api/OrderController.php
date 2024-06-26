@@ -16,6 +16,7 @@ use App\Http\Resources\PlaceQuotationResource;
 use App\Http\Resources\SummaryOrderResource;
 use App\Http\Resources\UpdateDocumentResource;
 use App\Models\Order;
+use App\Models\Vessel;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,8 +33,11 @@ class OrderController extends Controller
         $data = $request->validate([
             'port_of_loading_id' => 'required|integer|exists:ports,id',
             'port_of_discharge_id' => 'required|integer|exists:ports,id',
+            'vessel_id' => 'required|integer|exists:vessels,id',
             'date_of_loading' => 'required|date',
             'date_of_discharge' => 'required|date',
+            'cargo_description' => 'required|string',
+            'cargo_weight' => 'required|string',
             'shipper_name' => 'required|string',
             'shipper_address' => 'required|string',
             'consignee_name' => 'required|string',
@@ -58,21 +62,27 @@ class OrderController extends Controller
         // Total bill
         $totalBill = $totalCost + $tax;
 
+        // Add the tax and total bill to the data
         $data['tax'] = $tax;
         $data['total_bill'] = $totalBill;
 
+        // Get the authenticated user
+        $user = $request->user();
+        $data['user_id'] = $user->id;
+        // Create the order
+        $order = Order::create($data);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Order success to create',
-            'data' => $data
-        ], 201);
+            'data' => $order
+        ])->setStatusCode(201);
     }
 
     public function NEWcheckQuotation(Request $request)
     {
         // Validate the request
-        $data = $request->validate([
+        $request->validate([
             'port_of_loading_id' => 'required|integer|exists:ports,id',
             'port_of_discharge_id' => 'required|integer|exists:ports,id',
             'date_of_loading' => 'required|date',
@@ -80,13 +90,28 @@ class OrderController extends Controller
             'cargo_weight' => 'required|string',
         ]);
 
+
+        $routeDetails = DB::table('vessel_routes')
+            ->join('ports as loading_port', 'vessel_routes.port_of_loading_id', '=', 'loading_port.id')
+            ->join('ports as discharge_port', 'vessel_routes.port_of_discharge_id', '=', 'discharge_port.id')
+            ->select('loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'vessel_routes.day_estimation', 'vessel_routes.shipping_cost', 'vessel_routes.handling_cost', 'vessel_routes.biaya_parkir_pelabuhan')
+            ->where('port_of_loading_id', $request->port_of_loading_id)
+            ->where('port_of_discharge_id', $request->port_of_discharge_id)
+            ->first();
+
+        $vesselNames = Vessel::select('id', 'vessel_name')->get();
+        $result = $vesselNames->map(function ($vessel) use ($routeDetails) {
+            return array_merge($vessel->toArray(), (array) $routeDetails);
+        });
+
         return response()->json([
             'status' => 'success',
             'message' => 'Check quotation success',
-            'data' => $data
-        ], 200);
+            'data' => $result
+        ])->setStatusCode(200);
     }
 
+    // PROBABLY NOT NEEDED
     public function NEWplaceQuotation(Request $request)
     {
         // Validate the request
@@ -99,7 +124,7 @@ class OrderController extends Controller
             'status' => 'success',
             'message' => 'Place quotation success',
             'data' => $data
-        ], 200);
+        ])->setStatusCode(200);
     }
 
     public function orderPort(OrderPortRequest $request)
@@ -122,8 +147,8 @@ class OrderController extends Controller
         // Validate data
         $data = $request->validated();
 
-        //        Search transaction_id from table orders
-        //        Then from that result, search port_of_loading_id and port_of_loading_id
+        //    Search transaction_id from table orders
+        //    Then from that result, search port_of_loading_id and port_of_loading_id
         $checkOrderBasedOnTransactionId = Order::with(['portOfLoading', 'portOfDischarge'])
             ->where('transaction_id', $data['transaction_id'])
             ->where('user_id', $user->id)
@@ -403,7 +428,7 @@ class OrderController extends Controller
 
         return response()->json([
             'data' => $pendingOrder,
-        ], 200);
+        ])->setStatusCode(200);
     }
 
     /**
@@ -432,94 +457,15 @@ class OrderController extends Controller
                 'status' => 'error',
                 'message' => 'Orders with status ' . $request->status . ' not found',
                 'data' => []
-            ], 404);
+            ])->setStatusCode(404);
         }
         return response()->json([
             'status' => 'success',
             'message' => $request->has('status') ? 'Get all orders by status ' . $request->status . ' success' : 'Get orders list success',
             'data' => $orders
-        ]);
+        ])->setStatusCode(200);
     }
 
-    // public function paymentPendingOrderSearch(Request $request)
-    // {
-    //     // Only return Order with status 'payment_pending'
-    //     $paymentPendingOrder = DB::table('orders')
-    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-    //         ->where('status', 'payment_pending')
-    //         ->get();
-
-
-    //     return response()->json([
-    //         'data' => $paymentPendingOrder,
-    //     ], 200);
-    // }
-
-    // public function onShippingOrderSearch(Request $request)
-    // {
-    //     // Only return Order with status 'on_shipping'
-    //     $onShippingOrder = DB::table('orders')
-    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-    //         ->where('status', 'on_shipping')
-    //         ->get();
-
-
-    //     return response()->json([
-    //         'data' => $onShippingOrder,
-    //     ], 200);
-    // }
-
-    // public function completedOrderSearch(Request $request)
-    // {
-    //     // Only return Order with status 'order_completed'
-    //     $onShippingOrder = DB::table('orders')
-    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-    //         ->where('status', 'order_completed')
-    //         ->get();
-
-
-    //     return response()->json([
-    //         'data' => $onShippingOrder,
-    //     ], 200);
-    // }
-
-    // public function canceledOrderSearch(Request $request)
-    // {
-    //     // Only return Order with status 'order_canceled'
-    //     $onShippingOrder = DB::table('orders')
-    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-    //         ->where('status', 'order_canceled')
-    //         ->get();
-
-
-    //     return response()->json([
-    //         'data' => $onShippingOrder,
-    //     ], 200);
-    // }
-
-    // public function rejectedOrderSearch(Request $request)
-    // {
-    //     // Only return Order with status 'order_canceled'
-    //     $onShippingOrder = DB::table('orders')
-    //         ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-    //         ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-    //         ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
-    //         ->where('status', 'order_rejected')
-    //         ->get();
-
-
-    //     return response()->json([
-    //         'data' => $onShippingOrder,
-    //     ], 200);
-    // }
     /**
      * Display the specified resource.
      */
@@ -539,7 +485,7 @@ class OrderController extends Controller
                 'status' => 'error',
                 'message' => 'Order info not found.',
                 'data' => new stdClass(),
-            ], 200);
+            ])->setStatusCode(200);
         }
 
         // Return the response
@@ -547,6 +493,6 @@ class OrderController extends Controller
             'status' => 'success',
             'message' => 'Get order detail success',
             'data' => $orderDetail,
-        ], 200);
+        ])->setStatusCode(200);
     }
 }

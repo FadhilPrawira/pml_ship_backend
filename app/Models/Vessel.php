@@ -24,9 +24,7 @@ class Vessel extends Model
         'vessel_calc_speed_knot',
         'vessel_heading_degree',
         'vessel_tx_id',
+        'pml_internal_vessel_id',
         'pml_last_updated_at'
     ];
-
-    // public $timestamps = false;
-
 }

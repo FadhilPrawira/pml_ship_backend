@@ -63,8 +63,9 @@ Route::get('/conferences', [App\Http\Controllers\Api\ConferenceController::class
 // Get detail conference from a specific transaction. Only admin can access this route
 Route::get('/conferences/{transactionId}', [App\Http\Controllers\Api\ConferenceController::class, 'show'])->middleware('auth:sanctum');
 
-// TODO: Please check it again
-Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::class, 'addConference'])->middleware('auth:sanctum');
+// Add conference. Only customer can access this route
+// TODO: Pastikan apakah benar benar customer atau semuanya bisa akses. tadi bingung
+Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::class, 'store'])->middleware('auth:sanctum');
 
 // Get all ports. All roles can access this route
 Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])->middleware('auth:sanctum');
@@ -80,5 +81,5 @@ Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])-
 
 // NEW VERSION
 Route::post('/order', [App\Http\Controllers\Api\OrderController::class, 'createOrder'])->middleware('auth:sanctum');
-Route::post('/NEWcheckQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWcheckQuotation'])->middleware('auth:sanctum');
-Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');
+Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWcheckQuotation'])->middleware('auth:sanctum');
+// Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');

@@ -20,6 +20,6 @@ class CurrencyController extends Controller
             'status' => 'success',
             'message' => 'Get currency data success',
             'data' => $currency_data
-        ]);
+        ])->setStatusCode(200);
     }
 }

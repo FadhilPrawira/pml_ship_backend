@@ -17,6 +17,7 @@ class AuthController extends Controller
     // login
     public function login(Request $request)
     {
+        // TODO: Check if customer status is 'approved' or 'pending' or 'rejected'. If 'pending' or 'rejected', return error message. If 'approved', continue to login.
         // Validate the request
         $request->validate([
             'email' => ['required', 'max:100', 'email'],
@@ -31,7 +32,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email or password is incorrect.'
-            ], 401);
+            ])->setStatusCode(401);
         }
         // Generate token
         $auth_token = env('AUTH_TOKEN_SANCTUM', 'token_rahasia_default');
@@ -49,7 +50,7 @@ class AuthController extends Controller
                 ],
                 'token' => $token
             ]
-        ]);
+        ])->setStatusCode(200);
     }
 
     // logout
@@ -64,7 +65,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Logout success'
-        ]);
+        ])->setStatusCode(200);
     }
 
     public function customerRegister(Request $request): JsonResponse
@@ -130,7 +131,7 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'User registered successfully',
             'data' => $user,
-        ], 201);
+        ])->setStatusCode(201);
     }
 
     // TODO: Implement Forgot Password

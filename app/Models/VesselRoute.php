@@ -20,7 +20,9 @@ class VesselRoute extends Model
         'port_of_loading_id',
         'port_of_discharge_id',
         'day_estimation',
-        'cost',
+        'shipping_cost',
+        'handling_cost',
+        'biaya_parkir_pelabuhan',
     ];
 
     public function portOfLoading()
@@ -31,10 +33,5 @@ class VesselRoute extends Model
     public function portOfDischarge()
     {
         return $this->belongsTo(Port::class, 'port_of_discharge_id');
-    }
-
-    public function vessel()
-    {
-        return $this->belongsTo(Vessel::class);
     }
 }

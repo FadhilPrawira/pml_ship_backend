@@ -17,10 +17,12 @@ return new class extends Migration
             $table->foreignId('customer_company_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('conference_type', ['offline', 'online'])->default('offline');
-            //            In column 'location', you can input Gedung/Alamat or Zoom/Gmeet. The link will be provided later by email
+            // In column 'location', you can input Gedung/Alamat or Zoom/Gmeet. The link will be provided later by email
             $table->string('location')->nullable();
             $table->date('conference_date')->nullable();
             $table->string('conference_time')->nullable();
+            // Reason for rejection
+            $table->text('reason_rejected')->nullable();
             $table->timestampTz('conference_approved_at', precision: 0)->nullable();
             $table->timestampTz('conference_rejected_at', precision: 0)->nullable();
             $table->timestamps();

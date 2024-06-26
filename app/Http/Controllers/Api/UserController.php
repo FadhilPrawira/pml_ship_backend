@@ -37,21 +37,20 @@ class UserController extends Controller
                     'status' => 'error',
                     'message' => 'Customers with status ' . $request->status . ' not found',
                     'data' => []
-                ], 404);
+                ])->setStatusCode(404);
             }
             return response()->json([
                 'status' => 'success',
                 'message' => $request->has('status') ? 'Get all customer by status ' . $request->status . ' success' : 'Get customers list success',
                 'data' => $customers
-            ]);
+            ])->setStatusCode(200);
         } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to get user data. Must be an admin'
-            ], 403);
+            ])->setStatusCode(403);
         }
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -63,15 +62,13 @@ class UserController extends Controller
             'name' => ['max:100'],
             'phone' => ['max:20'],
             'email' => ['max:100', 'email'],
-            //            'password' => [Password::min(8), 'max:255'],
+            // 'password' => [Password::min(8), 'max:255'],
             'company_name' => ['max:255'],
             'company_address' => ['max:255'],
             'company_phone' => ['max:20'],
             'company_email' => ['email', 'max:100'],
             'company_NPWP' => ['max:20'],
             // 'company_akta' => ['required', File::types(['pdf'])],
-
-
         ]);
         // Get all request data
         $data = $request->all();
@@ -104,14 +101,14 @@ class UserController extends Controller
                 'status' => 'error',
                 'message' => 'Customer info not found',
                 'data' => new stdClass(), // return empty object
-            ], 404);
+            ])->setStatusCode(404);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Get customer detail success',
             'data' => $customerDetail,
-        ], 200);
+        ])->setStatusCode(200);
     }
 
     // Get user detail from authenticated user
@@ -122,12 +119,16 @@ class UserController extends Controller
             'message' => 'Get user detail success',
             'data' => $request->user()
 
-        ]);
+        ])->setStatusCode(200);
     }
 
     // Approve user
     public function approveUser(int $userId, Request $request)
     {
+        // Validate the request
+        $request->validate([
+            'approved_at' => 'required|date',
+        ]);
         // Get the user
         $user = User::where('id', $userId)->first();
 
@@ -137,7 +138,7 @@ class UserController extends Controller
                 'status' => 'error',
                 'message' => 'User not found',
                 'data' => new stdClass(), // return empty object
-            ], 404);
+            ])->setStatusCode(404);
         }
 
         // Check if the status is pending
@@ -146,11 +147,11 @@ class UserController extends Controller
                 'status' => 'error',
                 'message' => 'User status is not pending',
                 'data' => $user,
-            ], 400);
+            ])->setStatusCode(400);
         }
         // Change the status to approved
         $user->status = "approved";
-        // Change the approved date
+        // Set the approved date
         $user->approved_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
         // Save the user
         $user->save();
@@ -165,6 +166,10 @@ class UserController extends Controller
     // Reject user
     public function rejectUser(int $userId, Request $request)
     {
+        // Validate the request
+        $request->validate([
+            'rejected_at' => 'required|date',
+        ]);
         // TODO: Add reject reason
         // Get the user
         $user = User::where('id', $userId)->first();
@@ -174,7 +179,7 @@ class UserController extends Controller
                 'status' => 'error',
                 'message' => 'User not found',
                 'data' => new stdClass(), // return empty object
-            ], 404);
+            ])->setStatusCode(404);
         }
 
         // Check if the status is pending
@@ -183,7 +188,7 @@ class UserController extends Controller
                 'status' => 'error',
                 'message' => 'User status is not pending',
                 'data' => $user,
-            ], 400);
+            ])->setStatusCode(400);
         }
 
         // Change the status to rejected

@@ -26,25 +26,28 @@ class Order extends Model
         'consignee_address',
         'port_of_loading_id',
         'port_of_discharge_id',
+        'vessel_id',
         'date_of_loading',
         'date_of_discharge',
         'status',
         'cargo_description',
         'cargo_weight',
-        'total_cost',
-        'shipping_instruction_document_url',
-        'bill_of_lading_document_url',
-        'cargo_manifest_document_url',
-        'time_sheet_document_url',
-        'draught_survey_document_url',
+        'shipping_cost',
+        'handling_cost',
+        'biaya_parkir_pelabuhan',
+        'tax',
+        'total_bill',
+        'shipping_instruction_document',
+        'bill_of_lading_document',
+        'cargo_manifest_document',
+        'time_sheet_document',
+        'draught_survey_document',
         'rating_star',
         'review',
         'negotiation_approved_at'
-
     ];
 
-    // TODO: Fix Eloquent Relationship (Many to One) to Port Model
-    // Eloquent Relationship (Many to One) to Port Model
+
     public function portOfLoading()
     {
         return $this->belongsTo(Port::class, 'port_of_loading_id');
