@@ -59,6 +59,14 @@ class AuthController extends Controller
         // Get the authenticated user
         $user = $request->user();
 
+        // If not authenticated, return error message
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized'
+            ])->setStatusCode(401);
+        }
+
         // Revoke the token that was used to authenticate the current request
         $user->currentAccessToken()->delete();
 
@@ -109,7 +117,6 @@ class AuthController extends Controller
 
         // Create a new user
         $user = new User();
-
         $user->status = $data['status'];
         $user->role = $data['role'];
         $user->name = $data['name'];

@@ -211,7 +211,7 @@ class ConferenceController extends Controller
 
         // Change the status to 'rejected'
         $conference->status = "rejected";
-        $conference->conference_rejected_at = Carbon::parse($request->rejectedDate)->format('Y-m-d H:i:s');
+        $conference->conference_rejected_at = Carbon::parse($request->rejected_at)->format('Y-m-d H:i:s');
         $conference->save();
 
         return response()->json([

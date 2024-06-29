@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\File;
 use stdClass;
 
 class UserController extends Controller
@@ -27,11 +29,26 @@ class UserController extends Controller
         // Get the authenticated user
         $user = $request->user();
         if ($user->role == 'admin') {
-            // Get the orders
+
+            //  'Order by' different at different status
+            // Example: 'Order by' created_at for 'pending' status, 'Order by' approved_at for 'approved' status, 'Order by' rejected_at for 'rejected' status
+            if ($request->status == 'pending') {
+                $orderByRule = 'created_at';
+            } else if ($request->status == 'approved') {
+                $orderByRule = 'approved_at';
+            } else if ($request->status == 'rejected') {
+                $orderByRule = 'rejected_at';
+            } else {
+                $orderByRule = 'created_at';
+            }
+
+            // Get the customers
             $customers = User::where('role', 'customer')
                 ->where('status', 'like', "%{$request->status}%")
+                ->orderBy($orderByRule, 'desc')
                 ->get();
 
+            // Check if the customers is empty
             if ($customers->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
@@ -45,6 +62,7 @@ class UserController extends Controller
                 'data' => $customers
             ])->setStatusCode(200);
         } else {
+            // If the user is not an admin
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to get user data. Must be an admin'
@@ -53,43 +71,9 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request)
-    {
-        // Validate the request
-        $request->validate([
-            'name' => ['max:100'],
-            'phone' => ['max:20'],
-            'email' => ['max:100', 'email'],
-            // 'password' => [Password::min(8), 'max:255'],
-            'company_name' => ['max:255'],
-            'company_address' => ['max:255'],
-            'company_phone' => ['max:20'],
-            'company_email' => ['email', 'max:100'],
-            'company_NPWP' => ['max:20'],
-            // 'company_akta' => ['required', File::types(['pdf'])],
-        ]);
-        // Get all request data
-        $data = $request->all();
-
-        // Get the authenticated user
-        $user = $request->user();
-
-        // Update the user
-        $user->update($data);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User updated.',
-            'data' => $user,
-        ])->setStatusCode(200);
-    }
-
-    /**
      * Display the specified resource.
      */
-
+    // Get user detail by id
     public function show(int $userId)
     {
         // Get the user
@@ -108,6 +92,78 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Get customer detail success',
             'data' => $customerDetail,
+        ])->setStatusCode(200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request)
+    {
+        // TODO: Add update password
+        // Validate the request
+        $request->validate([
+            'name' => ['max:100'],
+            'phone' => ['max:20'],
+            'email' => ['max:100', 'email'],
+            // 'password' => [Password::min(8), 'max:255'],
+            'company_name' => ['max:255'],
+            'company_address' => ['max:255'],
+            'company_phone' => ['max:20'],
+            'company_email' => ['email', 'max:100'],
+            'company_NPWP' => ['max:20'],
+            'company_akta' => ['required', File::types(['pdf'])],
+        ]);
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Get all request data
+        $data = $request->all();
+
+        // Check if the form-data request has 'company_akta' as key
+        if ($request->hasFile('company_akta')) {
+
+            // Store the file in variable
+            $new_company_akta_file = $request->file('company_akta');
+
+            // Set company_akta file name
+            $new_cleaned_company_name = str_replace(" ", "_", $data['company_name']);
+            $new_company_akta_filename = $new_cleaned_company_name . '.' . $new_company_akta_file->extension();
+
+            // Delete the old company_akta file if it exists
+            if ($user->company_akta) {
+                // path to the company_akta file
+                $old_company_akta = 'public/file/' . $user->image;
+                Storage::delete($old_company_akta);
+            }
+
+            // Store the company_akta file in the storage
+            $new_company_akta_file->storeAs('public/file', $new_company_akta_filename);
+            // http://localhost:8000/storage/file/YOUR_IMAGE_NAME.EXTENSION
+        } else {
+            // If the request does not have 'company_akta' key
+            // Set the company_akta file to the old company_akta file
+            $new_company_akta_file = $user->company_akta;
+        }
+
+        // Update the user
+        $user->update([
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'email' => $data['email'],
+            'company_name' => $data['company_name'],
+            'company_address' => $data['company_address'],
+            'company_phone' => $data['company_phone'],
+            'company_email' => $data['company_email'],
+            'company_NPWP' => $data['company_NPWP'],
+            'company_akta' => $new_company_akta_filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated.',
+            'data' => $user,
         ])->setStatusCode(200);
     }
 

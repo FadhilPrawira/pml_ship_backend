@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Conference extends Model
+class Document extends Model
 {
     use HasFactory;
 
@@ -15,7 +15,7 @@ class Conference extends Model
      *
      * @var string
      */
-    protected $table = 'conferences';
+    protected $table = 'documents';
 
     /**
      * The attributes that are mass assignable.
@@ -24,24 +24,12 @@ class Conference extends Model
      */
     protected $fillable = [
         'transaction_id',
-        'customer_company_id',
-        'status',
-        'conference_type',
-        'location',
-        'conference_date',
-        'conference_time',
-        'reason_rejected',
-        'conference_approved_at',
-        'conference_rejected_at',
+        'document_name',
+        'document_type',
     ];
 
     public function transactionId(): HasOne
     {
         return $this->hasOne(Order::class, 'transaction_id');
-    }
-
-    public function customerCompanyId(): HasOne
-    {
-        return $this->hasOne(User::class, 'id');
     }
 }

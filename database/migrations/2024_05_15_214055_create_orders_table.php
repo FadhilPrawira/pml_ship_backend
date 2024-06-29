@@ -15,37 +15,24 @@ return new class extends Migration
             $table->id();
             // transaction_id
             $table->string('transaction_id');
+            $table->index('transaction_id');
             // user id
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
-            // shipper_name
             $table->string('shipper_name')->nullable();
-
-            // shipper_address
             $table->string('shipper_address')->nullable();
-
-            // consignee_name
             $table->string('consignee_name')->nullable();
-
-            // consignee_address
             $table->string('consignee_address')->nullable();
-
             // port_of_loading_id
             $table->foreignId('port_of_loading_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
             // port_of_discharge_id
             $table->foreignId('port_of_discharge_id')->nullable()->constrained('ports')->onUpdate('cascade')->onDelete('cascade');
+            // vessel_id
             $table->foreignId('vessel_id')->nullable()->constrained('vessels')->onUpdate('cascade')->onDelete('cascade');
-            // date_of_loading
+
             $table->date('date_of_loading')->nullable();
-
-            // date_of_discharge
             $table->date('date_of_discharge')->nullable();
-
-            // status
             $table->enum('status', ['order_pending', 'payment_pending', 'on_shipping', 'order_completed', 'order_canceled', 'order_rejected']);
-            // cargo_description
             $table->text('cargo_description')->nullable();
-
-            // cargo_weight
             $table->string('cargo_weight')->nullable();
 
             $table->unsignedBigInteger('shipping_cost')->nullable();
@@ -53,21 +40,18 @@ return new class extends Migration
             $table->unsignedBigInteger('biaya_parkir_pelabuhan')->nullable();
             $table->unsignedBigInteger('tax')->nullable();
             $table->unsignedBigInteger('total_bill')->nullable();
-            // shipping_instruction_document_url
-            $table->string('shipping_instruction_document_url')->nullable();
-            // bill_of_lading_document_url
-            $table->string('bill_of_lading_document_url')->nullable();
-            // cargo_manifest_document_url
-            $table->string('cargo_manifest_document_url')->nullable();
-            // time_sheet_document_url
-            $table->string('time_sheet_document_url')->nullable();
-            // draught_survey_document_url
-            $table->string('draught_survey_document_url')->nullable();
+            // Sudah bayar berapa rupiah?
+            $table->string('cumulative_paid')->nullable();
             // rating_star
             $table->integer('rating_star')->nullable();
             // review
             $table->text('review')->nullable();
-            $table->timestampTz('negotiation_approved_at', precision: 0)->nullable();
+            // approved_at
+            $table->timestampTz('negotiation_or_order_approved_at', precision: 0)->nullable();
+            // rejected_at
+            $table->timestampTz('order_rejected_at', precision: 0)->nullable();
+            // canceled_at
+            $table->timestampTz('order_canceled_at', precision: 0)->nullable();
             $table->timestamps();
         });
     }

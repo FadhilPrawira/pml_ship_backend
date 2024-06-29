@@ -62,4 +62,15 @@ class Order extends Model
     {
         return $this->belongsTo(Vessel::class, 'vessel_id');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'transaction_id');
+    }
+
+    // conference
+    public function conferences()
+    {
+        return $this->hasOne(Conference::class, 'transaction_id');
+    }
 }

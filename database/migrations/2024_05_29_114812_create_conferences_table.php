@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('conferences', function (Blueprint $table) {
             $table->id();
             $table->string('transaction_id')->unique();
+            // $table->foreign('transaction_id')->references('transaction_id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('customer_company_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('conference_type', ['offline', 'online'])->default('offline');
@@ -26,7 +27,6 @@ return new class extends Migration
             $table->timestampTz('conference_approved_at', precision: 0)->nullable();
             $table->timestampTz('conference_rejected_at', precision: 0)->nullable();
             $table->timestamps();
-            $table->foreign('transaction_id')->references('transaction_id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
