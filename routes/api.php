@@ -36,7 +36,6 @@ Route::patch('/users/{userId}/approve', [App\Http\Controllers\Api\UserController
 // Reject user. Only admin can access this route
 Route::patch('/users/{userId}/reject', [App\Http\Controllers\Api\UserController::class, 'rejectUser'])->middleware('auth:sanctum');
 
-
 // Get all orders. If 'status' specified, then get all orders with that status. All roles can access this route
 // This is based on migration status enum
 // /orders?status=order_pending
@@ -85,21 +84,14 @@ Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::cl
 Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])->middleware('auth:sanctum');
 
 
-// Route::post('/orderPort', [App\Http\Controllers\Api\OrderController::class, 'orderPort'])->middleware('auth:sanctum');
-// Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'checkQuotation'])->middleware('auth:sanctum');
-// Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
-// Route::patch('/addShipperConsignee', [App\Http\Controllers\Api\OrderController::class, 'addShipperConsignee'])->middleware('auth:sanctum');
-// Route::post('/summaryOrder', [App\Http\Controllers\Api\OrderController::class, 'summaryOrder'])->middleware('auth:sanctum');
-// Route::put('/updateDocument', [App\Http\Controllers\Api\OrderController::class, 'updateDocument'])->middleware('auth:sanctum');
-
-
-// NEW VERSION
-
 Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWcheckQuotation'])->middleware('auth:sanctum');
+// Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
 // Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');
 
-// Get all documents from a specified transaction_id. All roles can access this route
-Route::get('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'show']);
-// ->middleware('auth:sanctum');
 // Upload document. All roles can access this route
 Route::post('/documents', [App\Http\Controllers\Api\DocumentController::class, 'store'])->middleware('auth:sanctum');
+// Get all documents from a specified transaction_id. All roles can access this route
+Route::get('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'show'])->middleware('auth:sanctum');
+
+// Update document. All roles can access this route
+Route::put('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'update'])->middleware('auth:sanctum');
