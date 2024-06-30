@@ -22,9 +22,9 @@ class PortController extends Controller
         if ($ports->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Ports not found',
+                'message' => 'Ports data is empty',
                 'data' => []
-            ])->setStatusCode(404);
+            ])->setStatusCode(204);
         }
 
         return response()->json([
