@@ -4,17 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Port extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'ports';
+
 
     protected $fillable = [
         'name',
@@ -27,4 +23,26 @@ class Port extends Model
         'close_time',
         'image_url',
     ];
+
+    // FIX
+    public function ordersPortOfLoading(): HasMany
+    {
+        // One to many relationship
+        // This Port has many Order
+        // This will return all Order that belong to this user
+        // Di Tabel Ports tidak ada field yang menyimpan id Order.
+        // Di Tabel Order ada field port_of_loading_id yang menyimpan id Ports.
+        return $this->hasMany(Order::class, 'port_of_loading_id');
+    }
+
+    // FIX
+    public function ordersPortOfDischarge(): HasMany
+    {
+        // One to many relationship
+        // This Port has many Order
+        // This will return all Order that belong to this user
+        // Di Tabel Ports tidak ada field yang menyimpan id Order.
+        // Di Tabel Order ada field port_of_discharge_id yang menyimpan id Ports.
+        return $this->hasMany(Order::class, 'port_of_discharge_id');
+    }
 }

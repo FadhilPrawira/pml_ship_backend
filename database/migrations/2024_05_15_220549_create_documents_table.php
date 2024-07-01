@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_id');
-            $table->string('document_name');
+            // Foreign key to orders table
+            $table->string('order_transaction_id');
+            $table->foreign('order_transaction_id')->references('transaction_id')->on('orders')->onDelete('cascade');
+
+            $table->string('document_name')->nullable();
             $table->enum('document_type', ['shipping_instruction', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey']);
+            $table->timestampTz('uploaded_at', precision: 0)->nullable();
+            // max input document
+            $table->timestampTz('max_input_document_at', precision: 0)->nullable();
             $table->timestamps();
-            $table->foreign('transaction_id')->references('transaction_id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

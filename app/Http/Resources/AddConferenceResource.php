@@ -15,8 +15,9 @@ class AddConferenceResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "status" => 'success',
+            "message" => 'Conference added successfully',
             "data" => [
-                "message" => 'Conference added successfully',
                 "transaction_id" => $this->transaction_id,
                 "conference_detail" => [
                     'conference_type' => $this->conference_type,

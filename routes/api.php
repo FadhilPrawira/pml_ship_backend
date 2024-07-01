@@ -84,20 +84,18 @@ Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::cl
 Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])->middleware('auth:sanctum');
 
 
-<<<<<<< HEAD
-=======
-// Route::post('/summaryOrder', [App\Http\Controllers\Api\OrderController::class, 'summaryOrder'])->middleware('auth:sanctum');
-// Route::put('/updateDocument', [App\Http\Controllers\Api\OrderController::class, 'updateDocument'])->middleware('auth:sanctum');
-
->>>>>>> e89bd92703e132210476801c64e580b19b0a3744
 Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWcheckQuotation'])->middleware('auth:sanctum');
 // Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
 // Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');
 
 // Upload document. All roles can access this route
 Route::post('/documents', [App\Http\Controllers\Api\DocumentController::class, 'store'])->middleware('auth:sanctum');
+
 // Get all documents from a specified transaction_id. All roles can access this route
 Route::get('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'show'])->middleware('auth:sanctum');
 
 // Update document. All roles can access this route
 Route::put('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'update'])->middleware('auth:sanctum');
+
+// Get payments from an authenticated user. Only customer can access this route
+Route::get('/payments', [App\Http\Controllers\Api\PaymentController::class, 'index'])->middleware('auth:sanctum');

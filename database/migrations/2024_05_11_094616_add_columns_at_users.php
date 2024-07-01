@@ -26,7 +26,6 @@ return new class extends Migration
             $table->text('reason_rejected')->nullable();
             $table->timestampTz('rejected_at', precision: 0)->nullable();
             $table->timestampTz('approved_at', precision: 0)->nullable();
-            $table->softDeletes();
         });
     }
 
@@ -49,7 +48,6 @@ return new class extends Migration
             $table->dropColumn('reason_rejected');
             $table->dropColumn('rejected_at');
             $table->dropColumn('approved_at');
-            $table->dropColumn('deleted_at');
         });
     }
 };

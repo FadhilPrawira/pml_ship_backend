@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Resources\UserDetailResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class UserController extends Controller
         $user = $request->user();
         if ($user->role == 'admin') {
 
-            //  'Order by' different at different status
+            // 'Order by' different at different status
             // Example: 'Order by' created_at for 'pending' status, 'Order by' approved_at for 'approved' status, 'Order by' rejected_at for 'rejected' status
             if ($request->status == 'pending') {
                 $orderByRule = 'created_at';
@@ -56,10 +56,16 @@ class UserController extends Controller
                     'data' => []
                 ])->setStatusCode(404);
             }
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => $request->has('status') ? 'Get all customer by status ' . $request->status . ' success' : 'Get customers list success',
+            //     'data' => $customers
+            // ])->setStatusCode(200);
+
             return response()->json([
                 'status' => 'success',
                 'message' => $request->has('status') ? 'Get all customer by status ' . $request->status . ' success' : 'Get customers list success',
-                'data' => $customers
+                'data' => UserDetailResource::collection($customers)
             ])->setStatusCode(200);
         } else {
             // If the user is not an admin
@@ -88,10 +94,16 @@ class UserController extends Controller
             ])->setStatusCode(404);
         }
 
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Get customer detail success',
+        //     'data' => $customerDetail,
+        // ])->setStatusCode(200);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Get customer detail success',
-            'data' => $customerDetail,
+            'data' => new UserDetailResource($customerDetail),
         ])->setStatusCode(200);
     }
 
@@ -163,17 +175,24 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User updated.',
-            'data' => $user,
+            'data' => new UserDetailResource($user),
         ])->setStatusCode(200);
     }
 
     // Get user detail from authenticated user
     public function getUserDetail(Request $request)
     {
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Get user detail success',
+        //     'data' => $request->user()
+
+        // ])->setStatusCode(200);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Get user detail success',
-            'data' => $request->user()
+            'data' => new UserDetailResource($request->user())
 
         ])->setStatusCode(200);
     }
@@ -202,7 +221,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'User status is not pending',
-                'data' => $user,
+                'data' => new UserDetailResource($user),
             ])->setStatusCode(400);
         }
         // Change the status to approved
@@ -212,10 +231,16 @@ class UserController extends Controller
         // Save the user
         $user->save();
 
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'User approved.',
+        //     'data' => $user,
+        // ])->setStatusCode(200);
+
         return response()->json([
             'status' => 'success',
             'message' => 'User approved.',
-            'data' => $user,
+            'data' => new UserDetailResource($user),
         ])->setStatusCode(200);
     }
 
@@ -240,10 +265,16 @@ class UserController extends Controller
 
         // Check if the status is pending
         if ($user->status != 'pending') {
+            // return response()->json([
+            //     'status' => 'error',
+            //     'message' => 'User status is not pending',
+            //     'data' => $user,
+            // ])->setStatusCode(400);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'User status is not pending',
-                'data' => $user,
+                'data' => new UserDetailResource($user),
             ])->setStatusCode(400);
         }
 
@@ -254,10 +285,16 @@ class UserController extends Controller
         // Save the user
         $user->save();
 
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'User rejected.',
+        //     'data' => $user,
+        // ])->setStatusCode(200);
+
         return response()->json([
             'status' => 'success',
             'message' => 'User rejected.',
-            'data' => $user,
+            'data' => new UserDetailResource($user),
         ])->setStatusCode(200);
     }
 }

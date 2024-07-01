@@ -9,13 +9,6 @@ class Vessel extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'vessels';
-
     protected $fillable = [
         'vessel_name',
         'vessel_lat',

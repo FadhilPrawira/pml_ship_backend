@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_id');
-            $table->foreign('transaction_id')->references('transaction_id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
+
+            // Foreign key to orders table
+            $table->string('order_transaction_id');
+            $table->foreign('order_transaction_id')->references('transaction_id')->on('orders')->onDelete('cascade');
+
             // payment_date
             $table->date('payment_date');
             // payment_due_date in YYYY-MM-DD 23:59:59

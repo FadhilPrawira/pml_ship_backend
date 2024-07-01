@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateDocumentRequest;
+use App\Http\Resources\DocumentDetailResource;
 use App\Http\Resources\UpdateDocumentResource;
 use App\Models\Document;
 use App\Models\Order;
@@ -14,6 +15,30 @@ use Illuminate\Validation\Rules\File;
 
 class DocumentController extends Controller
 {
+    // RULES
+    // =====================================================================
+    //     // This is assume today is 2024-05-17
+    // DateTime orderDate = DateFormat("yyyy-MM-dd").parse('2024-05-17');
+
+    // // Range for conference date is 2024-05-18 until 2024-05-20.
+    // DateTime conferenceDateStarted = orderDate.add(const Duration(days: 1));
+    // DateTime conferenceDateEnded = orderDate.add(const Duration(days: 3));
+
+    // DateTime conferenceSuccessDate = DateFormat("yyyy-MM-dd").parse('2024-05-20');
+
+    // // If conference success, customer can input document until 2 days later (2024-05-22)
+    // DateTime maxInputDocument = conferenceSuccessDate.add(const Duration(days: 2));
+    // DateTime customerInputDocumentShippingInstruction =
+    //     DateFormat("yyyy-MM-dd").parse('2024-05-22');
+
+    // DateTime maxPayment =
+    //     customerInputDocumentShippingInstruction.add(const Duration(days: 2));
+    // DateTime customerPaymentDate = DateFormat("yyyy-MM-dd").parse('2024-05-25');
+    // DateTime adminCheckCustomerPaymentDate =
+    //     customerPaymentDate.add(const Duration(days: 1));
+
+    // =====================================================================
+
     /**
      * Store a newly created resource in storage.
      */
@@ -76,7 +101,7 @@ class DocumentController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Document uploaded successfully',
-            'data' => $document,
+            'data' => new DocumentDetailResource($document),
         ])->setStatusCode(200);
     }
 
@@ -135,11 +160,11 @@ class DocumentController extends Controller
             $new_document_filename = $transactionId . '-' . $data['document_type'] . '.' . $new_document_file->extension();
 
 
-            // Delete the old company_akta file if it exists
-            if ($document_detail->company_akta) {
+            // Delete the old document_name file if it exists
+            if ($document_detail->document_name) {
                 // path to the company_akta file
-                $old_company_akta = 'public/documents/' . $document_detail->image;
-                Storage::delete($old_company_akta);
+                $old_document_path = 'public/documents/' . $document_detail->document_name;
+                Storage::delete($old_document_path);
             }
 
             // Store the new file
@@ -163,7 +188,7 @@ class DocumentController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Document updated.',
-            'data' => $document_detail,
+            'data' => new DocumentDetailResource($document_detail),
         ])->setStatusCode(200);
     }
 }

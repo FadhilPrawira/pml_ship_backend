@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SummaryOrderRequest;
-use App\Http\Requests\UpdateDocumentRequest;
+use App\Http\Resources\OrderDetailResource;
 use App\Http\Resources\SummaryOrderResource;
-use App\Http\Resources\UpdateDocumentResource;
+use App\Models\Document;
 use App\Models\Order;
 use App\Models\Vessel;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -14,10 +14,35 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class OrderController extends Controller
 {
+
+    // RULES
+    // =====================================================================
+    //     // This is assume today is 2024-05-17
+    // DateTime orderDate = DateFormat("yyyy-MM-dd").parse('2024-05-17');
+
+    // // Range for conference date is 2024-05-18 until 2024-05-20.
+    // DateTime conferenceDateStarted = orderDate.add(const Duration(days: 1));
+    // DateTime conferenceDateEnded = orderDate.add(const Duration(days: 3));
+
+    // DateTime conferenceSuccessDate = DateFormat("yyyy-MM-dd").parse('2024-05-20');
+
+    // // If conference success, customer can input document until 2 days later (2024-05-22)
+    // DateTime maxInputDocument = conferenceSuccessDate.add(const Duration(days: 2));
+    // DateTime customerInputDocumentShippingInstruction =
+    //     DateFormat("yyyy-MM-dd").parse('2024-05-22');
+
+    // DateTime maxPayment =
+    //     customerInputDocumentShippingInstruction.add(const Duration(days: 2));
+    // DateTime customerPaymentDate = DateFormat("yyyy-MM-dd").parse('2024-05-25');
+    // DateTime adminCheckCustomerPaymentDate =
+    //     customerPaymentDate.add(const Duration(days: 1));
+
+    // =====================================================================
     /**
      * Display a listing of the resource.
      */
@@ -31,14 +56,28 @@ class OrderController extends Controller
             'status' => 'string|in:order_pending,payment_pending,on_shipping,order_completed,order_canceled,order_rejected',
         ]);
 
+        // 'Order by' different at different status
+        // Example: 'Order by' created_at for 'pending' status, 'Order by' approved_at for 'approved' status, 'Order by' rejected_at for 'rejected' status
+        if ($request->status == 'order_pending') {
+            $orderByRule = 'created_at';
+        } else if ($request->status == 'payment_pending') {
+            $orderByRule = 'negotiation_or_order_approved_at';
+        } else if ($request->status == 'on_shipping') {
+            $orderByRule = 'updated_at'; // not sure
+        } else if ($request->status == 'order_completed') {
+            $orderByRule = 'updated_at'; // not sure
+        } else if ($request->status == 'order_canceled') {
+            $orderByRule = 'order_canceled_at';
+        } else if ($request->status == 'order_rejected') {
+            $orderByRule = 'order_rejected_at';
+        } else {
+            $orderByRule = 'created_at';
+        }
+
         // Get the orders
-        $orders = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name')
+        $orders = Order::with(['portOfLoading', 'portOfDischarge'])
             ->where('status', 'like', "%{$request->status}%")
-            // order by created_at desc
-            ->orderBy('created_at', 'desc')
+            ->orderBy($orderByRule, 'desc')
             ->get();
 
         if ($orders->isEmpty()) {
@@ -51,7 +90,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => $request->has('status') ? 'Get all orders by status ' . $request->status . ' success' : 'Get orders list success',
-            'data' => $orders
+            'data' => OrderDetailResource::collection($orders)
         ])->setStatusCode(200);
     }
 
@@ -107,10 +146,19 @@ class OrderController extends Controller
         // Create the order
         $order = Order::create($data);
 
+        // Create default documents
+        $documentNames = ['shipping_instruction', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey'];
+        foreach ($documentNames as $documentName) {
+            // Create the document for the order using the relationship
+            $order->documents()->create([
+                'document_type' => $documentName,
+            ]);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Order success to create',
-            'data' => $order
+            'data' => new OrderDetailResource($order),
         ])->setStatusCode(201);
     }
 
@@ -120,11 +168,8 @@ class OrderController extends Controller
     public function show(String $transactionId)
     {
         // Get the order detail
-        $orderDetail = DB::table('orders')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('orders.*', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'orders.date_of_loading', 'orders.date_of_discharge', 'orders.shipper_name', 'orders.consignee_name')
-            ->where('orders.transaction_id', $transactionId)
+        $orderDetail = Order::with(['documents'])
+            ->where('transaction_id', $transactionId)
             ->first();
 
         // If not found
@@ -140,7 +185,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Get order detail success',
-            'data' => $orderDetail,
+            'data' => new OrderDetailResource($orderDetail),
         ])->setStatusCode(200);
     }
 
@@ -213,8 +258,10 @@ class OrderController extends Controller
         $user = $request->user();
         if ($user->role == 'admin') {
             // Get the conference
-            $order = Order::where('transaction_id', $transactionId)->first();
+            $order = Order::with('documents')
+                ->where('transaction_id', $transactionId)->first();
 
+            return $order;
             // Check if the conference exists
             if (!$order) {
                 return response()->json([
@@ -235,7 +282,11 @@ class OrderController extends Controller
             // Change the status to 'payment_pending'
             $order->status = "payment_pending";
             // Set the approved date
-            $order->negotiation_or_order_approved_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
+            $order->documents->max_input_document_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
+
+            // Set the max input document date
+            // Add 2 days from approved date, and make it to 23:59:59/end of the day
+            $order->max_input_document_at = Carbon::parse($request->approved_at)->addDays(2)->endOfDay()->format('Y-m-d H:i:s');
             $order->save();
 
             return response()->json([
@@ -329,7 +380,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order canceled.',
-                'data' => $order,
+                'data' => new OrderDetailResource($order),
             ])->setStatusCode(200);
         } else {
             return response()->json([
@@ -337,91 +388,5 @@ class OrderController extends Controller
                 'message' => 'You are not authorized to cancel order data. Must be an customer'
             ])->setStatusCode(403);
         }
-    }
-
-
-    // public function placeQuotation(PlaceQuotationRequest $request)
-    // {
-    //     // Get the authenticated user
-    //     $user = Auth::user();
-
-    //     // Validate data
-    //     $data = $request->all();
-
-    //     // Find order by transaction_id and user_id
-    //     $order = Order::where('transaction_id', $data['transaction_id'])
-    //         ->where('user_id', $user->id)
-    //         ->first();
-
-    //     // If not found, throw 404 error
-    //     if (!$order) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Transaction not found.'
-    //         ])->setStatusCode(404);
-    //     }
-
-    //     // Update the order
-    //     if (isset($data['vessel_id'])) {
-    //         $order->vessel_id = $data['vessel_id'];
-    //     }
-
-    //     if (isset($data['date_of_discharge'])) {
-    //         $order->date_of_discharge = $data['date_of_discharge'];
-    //     }
-
-    //     if (isset($data['shipping_cost'])) {
-    //         $order->shipping_cost = $data['shipping_cost'];
-    //     }
-
-    //     if (isset($data['handling_cost'])) {
-    //         $order->handling_cost = $data['handling_cost'];
-    //     }
-    //     if (isset($data['biaya_parkir_pelabuhan'])) {
-    //         $order->biaya_parkir_pelabuhan = $data['biaya_parkir_pelabuhan'];
-    //     }
-
-    //     $order->save();
-
-    //     // Search the order by transaction_id and user_id
-    //     $result = Order::select('*', DB::raw('shipping_cost'))
-    //         ->where('transaction_id', $data['transaction_id'])
-    //         ->where('user_id', $user->id)
-    //         ->first();
-
-    //     return (new PlaceQuotationResource($result))->response()->setStatusCode(200);
-    // }
-
-
-    public function summaryOrder(SummaryOrderRequest $request)
-    {
-        //        TODO: Create trigger. When negotiation is approved (have datetime data), then update the value of column status from 'order_pending' to 'processed'
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // Validate data
-        $data = $request->validated();
-
-        // Retrieve the order summary
-        $orderSummary = Order::with(['portOfLoading', 'portOfDischarge', 'vesselName'])
-            ->where('user_id', $user->id)
-            ->where('transaction_id', $data['transaction_id'])
-            ->first();
-
-        // If not found, throw 404 error
-        if (!$orderSummary) {
-            throw new HttpResponseException(
-                response([
-                    "errors" => [
-                        "message" => [
-                            "Transaction not found."
-                        ]
-                    ]
-                ], 404)
-            );
-        }
-
-        // Return the response
-        return (new SummaryOrderResource($orderSummary))->response()->setStatusCode(200);
     }
 }

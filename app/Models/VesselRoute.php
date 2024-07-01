@@ -9,13 +9,6 @@ class VesselRoute extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'vessel_routes';
-
     protected $fillable = [
         'port_of_loading_id',
         'port_of_discharge_id',
@@ -25,13 +18,24 @@ class VesselRoute extends Model
         'biaya_parkir_pelabuhan',
     ];
 
+    // FIX
     public function portOfLoading()
     {
+        // One to many relationship (inverse)
+        // Many VesselRoute belongs to one port
+        // This will return the port that owns many VesselRoute
+        // Di Tabel port tidak ada field yang menyimpan id VesselRoute.
+        // Di Tabel VesselRoute ada field port_of_loading_id yang menyimpan id port.
         return $this->belongsTo(Port::class, 'port_of_loading_id');
     }
 
     public function portOfDischarge()
     {
+        // One to many relationship (inverse)
+        // Many VesselRoute belongs to one port
+        // This will return the port that owns many VesselRoute
+        // Di Tabel port tidak ada field yang menyimpan id VesselRoute.
+        // Di Tabel VesselRoute ada field port_of_discharge_id yang menyimpan id port.
         return $this->belongsTo(Port::class, 'port_of_discharge_id');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ConferenceDetailResource;
 use App\Models\Conference;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -12,6 +13,30 @@ use stdClass;
 
 class ConferenceController extends Controller
 {
+    // RULES
+    // =====================================================================
+    //     // This is assume today is 2024-05-17
+    // DateTime orderDate = DateFormat("yyyy-MM-dd").parse('2024-05-17');
+
+    // // Range for conference date is 2024-05-18 until 2024-05-20.
+    // DateTime conferenceDateStarted = orderDate.add(const Duration(days: 1));
+    // DateTime conferenceDateEnded = orderDate.add(const Duration(days: 3));
+
+    // DateTime conferenceSuccessDate = DateFormat("yyyy-MM-dd").parse('2024-05-20');
+
+    // // If conference success, customer can input document until 2 days later (2024-05-22)
+    // DateTime maxInputDocument = conferenceSuccessDate.add(const Duration(days: 2));
+    // DateTime customerInputDocumentShippingInstruction =
+    //     DateFormat("yyyy-MM-dd").parse('2024-05-22');
+
+    // DateTime maxPayment =
+    //     customerInputDocumentShippingInstruction.add(const Duration(days: 2));
+    // DateTime customerPaymentDate = DateFormat("yyyy-MM-dd").parse('2024-05-25');
+    // DateTime adminCheckCustomerPaymentDate =
+    //     customerPaymentDate.add(const Duration(days: 1));
+
+    // =====================================================================
+
     /**
      * Display a listing of the resource.
      */
@@ -25,14 +50,25 @@ class ConferenceController extends Controller
             'status' => 'string|in:pending,approved,rejected',
         ]);
 
+        // 'Order by' different at different status
+        // Example: 'Order by' created_at for 'pending' status, 'Order by' conference_approved_at for 'approved' status, 'Order by' conference_rejected_at	 for 'rejected' status
+        if ($request->status == 'pending') {
+            $orderByRule = 'created_at';
+        } else if ($request->status == 'approved') {
+            $orderByRule = 'conference_approved_at';
+        } else if ($request->status == 'rejected') {
+            $orderByRule = 'conference_rejected_at';
+        } else {
+            $orderByRule = 'created_at';
+        }
+
         // Get the authenticated user
         $user = $request->user();
         if ($user->role == 'admin') {
             // Get the orders
-            $conferences = DB::table('conferences')
-                ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-                ->select('conferences.*', 'users.company_name')
-                ->where('conferences.status', 'like', "%{$request->status}%")
+            $conferences = Conference::with('customerCompany')
+                ->where('status', 'like', "%{$request->status}%")
+                ->orderBy($orderByRule, 'desc')
                 ->get();
 
             if ($conferences->isEmpty()) {
@@ -45,7 +81,7 @@ class ConferenceController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => $request->has('status') ? 'Get all conferences by status ' . $request->status . ' success' : 'Get conferences list success',
-                'data' => $conferences
+                'data' => ConferenceDetailResource::collection($conferences)
             ])->setStatusCode(200);
         } else {
             return response()->json([
@@ -69,8 +105,9 @@ class ConferenceController extends Controller
             'conference_time' => 'required',
         ]);
 
-        // Search for transaction_id
-        $order = Order::where('transaction_id', $request->transaction_id)->first();
+        // Search for transaction_id in Order table
+        $order = Order::find($request->transaction_id);
+
 
         // Check if the order exists
         if (!$order) {
@@ -81,8 +118,9 @@ class ConferenceController extends Controller
             ])->setStatusCode(404);
         }
 
+
         // if transaction_id exists in Conference table
-        if (Conference::where('transaction_id', $request->transaction_id)->exists()) {
+        if (Conference::where('order_transaction_id', $request->transaction_id)->exists()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Conference already exists',
@@ -99,13 +137,17 @@ class ConferenceController extends Controller
         $data['customer_company_id'] = $user->id;
         $data['status'] = 'pending';
 
+        // Modify $data to include 'order_transaction_id'
+        $data['order_transaction_id'] = $data['transaction_id'];
+        unset($data['transaction_id']); // Remove the old key if desired
+
         // Create conference
-        $conference = Conference::Create($data);
+        $conference = Conference::Create($data)->with(['order.portOfLoading', 'order.portOfDischarge'])->first();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Conference created',
-            'data' => $conference,
+            'data' => new ConferenceDetailResource($conference),
         ])->setStatusCode(201);
     }
 
@@ -116,14 +158,8 @@ class ConferenceController extends Controller
     public function show(string $transactionId)
     {
         // Get the conference detail
-        $conferenceDetail = DB::table('conferences')
-            ->join('users', 'conferences.customer_company_id', '=', 'users.id')
-            ->join('orders', 'conferences.transaction_id', '=', 'orders.transaction_id')
-            ->join('ports as loading_port', 'orders.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'orders.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('conferences.*', 'users.company_name', 'loading_port.name as port_of_loading_name', 'discharge_port.name as port_of_discharge_name', 'orders.date_of_loading', 'orders.date_of_discharge', 'orders.shipper_name', 'orders.consignee_name')
-            ->where('conferences.transaction_id', $transactionId)
-            ->first();
+        $conferenceDetail = Conference::with(['order', 'customerCompany'])->where('order_transaction_id', $transactionId)->first();
+
 
         // Check if the conference exists
         if (!$conferenceDetail) {
@@ -137,7 +173,7 @@ class ConferenceController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Get conference detail success',
-            'data' => $conferenceDetail,
+            'data' => new ConferenceDetailResource($conferenceDetail),
         ])->setStatusCode(200);
     }
 
@@ -149,7 +185,7 @@ class ConferenceController extends Controller
         ]);
 
         // Get the conference
-        $conference = Conference::where('transaction_id', $transactionId)->first();
+        $conference = Conference::where('order_transaction_id', $transactionId)->first();
 
         // Check if the conference exists
         if (!$conference) {
@@ -165,7 +201,7 @@ class ConferenceController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Conference status is not pending',
-                'data' => $conference,
+                'data' => new ConferenceDetailResource($conference),
             ], 400);
         }
         // Change the status to 'approved'
@@ -177,7 +213,7 @@ class ConferenceController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Conference approved.',
-            'data' => $conference,
+            'data' => new ConferenceDetailResource($conference),
         ])->setStatusCode(200);
     }
 
@@ -189,7 +225,7 @@ class ConferenceController extends Controller
         ]);
 
         // Get the conference
-        $conference = Conference::where('transaction_id', $transactionId)->first();
+        $conference = Conference::where('order_transaction_id', $transactionId)->first();
 
         // Check if the conference exists
         if (!$conference) {
@@ -205,7 +241,7 @@ class ConferenceController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Conference status is not pending',
-                'data' => $conference,
+                'data' => new ConferenceDetailResource($conference),
             ])->setStatusCode(400);
         }
 
@@ -217,7 +253,7 @@ class ConferenceController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Conference rejected.',
-            'data' => $conference,
+            'data' => new ConferenceDetailResource($conference),
         ])->setStatusCode(200);
     }
 }

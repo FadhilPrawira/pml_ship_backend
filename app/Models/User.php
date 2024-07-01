@@ -13,13 +13,6 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'users';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -37,8 +30,9 @@ class User extends Authenticatable
         'company_email',
         'company_NPWP',
         'company_akta',
-        'approved_at',
+        'reason_rejected',
         'rejected_at',
+        'approved_at',
     ];
 
     /**
@@ -67,5 +61,17 @@ class User extends Authenticatable
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
         ];
+    }
+
+    // FIX
+    public function conference()
+    {
+        // FIX
+        // One to many relationship
+        // This User has many conference
+        // This will return all conference that belong to this user
+        // Di Tabel User tidak ada field yang menyimpan id Conference.
+        // Di Tabel Conference ada field customer_company_id yang menyimpan id Order.
+        return $this->hasMany(Conference::class, 'customer_company_id');
     }
 }

@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Resources\UnauthenticatedResource;
+use App\Http\Resources\UserLoginFailedResource;
+use App\Http\Resources\UserLoginResource;
+use App\Http\Resources\UserLoginSuccessResource;
+use App\Http\Resources\UserRegisterResource;
+use App\Http\Resources\UserRegisterSuccessResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +20,7 @@ use Illuminate\Validation\Rules\File;
 class AuthController extends Controller
 {
     // login
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         // TODO: Check if customer status is 'approved' or 'pending' or 'rejected'. If 'pending' or 'rejected', return error message. If 'approved', continue to login.
         // Validate the request
@@ -37,20 +42,11 @@ class AuthController extends Controller
         // Generate token
         $auth_token = env('AUTH_TOKEN_SANCTUM', 'token_rahasia_default');
         $token = $user->createToken($auth_token)->plainTextToken;
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Login success',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'status' => $user->status,
-                ],
-                'token' => $token
-            ]
-        ])->setStatusCode(200);
+
+        //  Return the user and token
+        return (new UserLoginSuccessResource($user, $token))
+            ->response()
+            ->setStatusCode(200);
     }
 
     // logout
@@ -63,7 +59,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthorized'
+                'message' => 'Unauthenticated. Please login first.'
             ])->setStatusCode(401);
         }
 
@@ -134,11 +130,14 @@ class AuthController extends Controller
         // Save the user
         $user->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User registered successfully',
-            'data' => $user,
-        ])->setStatusCode(201);
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'User registered successfully',
+        //     'data' => $user,
+        // ])->setStatusCode(201);
+        return (new UserRegisterSuccessResource($user))
+            ->response()
+            ->setStatusCode(201);
     }
 
     // TODO: Implement Forgot Password

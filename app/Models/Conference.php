@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conference extends Model
@@ -11,19 +12,12 @@ class Conference extends Model
     use HasFactory;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'conferences';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'transaction_id',
+        'order_transaction_id',
         'customer_company_id',
         'status',
         'conference_type',
@@ -35,13 +29,25 @@ class Conference extends Model
         'conference_rejected_at',
     ];
 
-    public function transactionId(): HasOne
+    // FIX
+    public function order()
     {
-        return $this->hasOne(Order::class, 'transaction_id');
+        // One to one relationship (inverse)
+        // One conference belongs to one order
+        // This will return the order that owns a conference
+        // Di Tabel Order tidak ada field yang menyimpan id Conference.
+        // Di Tabel Conference ada field transaction_id yang menyimpan id Order.
+        return $this->belongsTo(Order::class, 'order_transaction_id');
     }
 
-    public function customerCompanyId(): HasOne
+    // FIX
+    public function customerCompany(): BelongsTo
     {
-        return $this->hasOne(User::class, 'id');
+        // One to many relationship (inverse)
+        // Many Conference belongs to one user
+        // This will return the user that owns many Conference
+        // Di Tabel User tidak ada field yang menyimpan id Conference.
+        // Di Tabel Conference ada field customer_company_id yang menyimpan id User.
+        return $this->belongsTo(User::class, 'customer_company_id');
     }
 }

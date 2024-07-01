@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('vessels', function (Blueprint $table) {
             $table->id();
             $table->string('vessel_name');
-            // $table->string('vessel_type');
-            // $table->enum('vessel_status', ['onhire', 'offhire'])->default('onhire');
             $table->string('vessel_lat')->nullable();
             $table->string('vessel_lon')->nullable();
             $table->string('vessel_vts_speed_knot')->nullable();

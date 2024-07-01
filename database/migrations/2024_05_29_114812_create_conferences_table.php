@@ -13,9 +13,15 @@ return new class extends Migration
     {
         Schema::create('conferences', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_id')->unique();
-            // $table->foreign('transaction_id')->references('transaction_id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('customer_company_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
+
+            // Foreign key to orders table
+            $table->string('order_transaction_id');
+            $table->foreign('order_transaction_id')->references('transaction_id')->on('orders')->onDelete('cascade');
+
+            // Foreign key to users table
+            $table->unsignedBigInteger('customer_company_id');
+            $table->foreign('customer_company_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('conference_type', ['offline', 'online'])->default('offline');
             // In column 'location', you can input Gedung/Alamat or Zoom/Gmeet. The link will be provided later by email
