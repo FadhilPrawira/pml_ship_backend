@@ -15,3 +15,5 @@ To get started with Laravel, follow these steps:
 7. Run the command to create a symbolic link from "public/storage" to "storage/app/public": `php artisan storage:link`
 8. Start the development server: `php artisan serve`
 
+## TODO
+Implement authorization with Laravel Spatie
