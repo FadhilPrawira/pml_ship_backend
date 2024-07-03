@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateDocumentRequest;
 use App\Http\Resources\DocumentDetailResource;
-use App\Http\Resources\UpdateDocumentResource;
 use App\Models\Document;
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
+
 
 class DocumentController extends Controller
 {
@@ -40,70 +39,79 @@ class DocumentController extends Controller
     // =====================================================================
 
     /**
+     * Display a listing of the resource.
+     */
+    // public function index(Request $request)
+    // {
+    //     $documents = Document::all();
+    //     return $documents;
+    // }
+
+    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        // Validate data
-        $request->validate([
-            'transaction_id' => 'required|string',
-            'document_type' => 'required|string|in:shipping_instruction,bill_of_lading,cargo_manifest,time_sheet,draught_survey',
-            'document_file' => ['required', File::types(['pdf'])],
-        ]);
+    // public function store(Request $request)
+    // {
+    //     // Validate data
+    //     $request->validate([
+    //         'transaction_id' => 'required|string',
+    //         'document_type' => 'required|string|in:shipping_instruction,SPAL,bill_of_lading,cargo_manifest,time_sheet,draught_survey',
+    //         'document_file' => ['required', File::types(['pdf'])],
+    //     ]);
 
-        // Get all request data
-        $data = $request->all();
+    //     // Get all request data
+    //     $data = $request->all();
 
-        // Check if the order exists
-        $order = Order::where('transaction_id', $data['transaction_id'])->first();
+    //     // Check if the order exists
+    //     $order = Order::where('transaction_id', $data['transaction_id'])->first();
 
-        // If order does not exist, return error
-        if (!$order) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Transaction not found',
-            ])->setStatusCode(404);
-        }
+    //     // If order does not exist, return error
+    //     if (!$order) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Transaction not found',
+    //         ])->setStatusCode(404);
+    //     }
 
-        // Check if the document type already exists
-        $document = Document::where('transaction_id', $data['transaction_id'])
-            ->where('document_type', $data['document_type'])
-            ->first();
+    //     // Check if the document type already exists
+    //     $document = Document::where('order_transaction_id', $data['transaction_id'])
+    //         ->where('document_type', $data['document_type'])
+    //         ->first();
 
-        // If document type already exists, return error
-        if ($document) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Document ' . $data['document_type'] . ' already exists',
-            ])->setStatusCode(400);
-        }
+    //     // If document type already exists, return error
+    //     if ($document) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Document ' . $data['document_type'] . ' already exists',
+    //         ])->setStatusCode(400);
+    //     }
 
-        // Store the file in variable
-        $document_file = $request->file('document_file');
+    //     // Store the file in variable
+    //     $document_file = $request->file('document_file');
 
-        // Set file name
-        $document_filename = $data['transaction_id'] . '-' . $data['document_type'] . '.' . $document_file->extension();
+    //     // Set file name
+    //     $document_filename = $data['transaction_id'] . '-' . $data['document_type'] . '.' . $document_file->extension();
 
-        // Store the new file
-        $document_file->storeAs('public/documents', $document_filename);
-        // Access file
-        // http://10.104.220.16:8000/storage/documents/TRX1717142358-shipping_instruction.pdf
+    //     // Store the new file
+    //     $document_file->storeAs('public/documents', $document_filename);
+    //     // Access file
+    //     // http://10.104.220.16:8000/storage/documents/TRX1717142358-shipping_instruction.pdf
 
-        // Create a new Document
-        $document = new Document();
-        $document->transaction_id = $data['transaction_id'];
-        $document->document_name = $document_filename;
-        $document->document_type = $data['document_type'];
+    //     // Create a new Document
+    //     $document = new Document();
+    //     $document->transaction_id = $data['transaction_id'];
+    //     $document->document_name = $document_filename;
+    //     $document->document_type = $data['document_type'];
 
-        $document->save();
+    //     $document->save();
 
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Document uploaded successfully',
-            'data' => new DocumentDetailResource($document),
-        ])->setStatusCode(200);
-    }
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Document uploaded successfully',
+    //         'data' => new DocumentDetailResource($document),
+    //     ])->setStatusCode(200);
+    // }
 
     /**
      * Display the specified resource.
@@ -122,7 +130,7 @@ class DocumentController extends Controller
         }
 
         // Get all documents from a specified transaction_id
-        $documents = Document::where('transaction_id', $transactionId)->get();
+        $documents = Document::where('order_transaction_id', $transactionId)->get();
 
         return response()->json([
             'status' => 'success',
@@ -138,12 +146,12 @@ class DocumentController extends Controller
     {
         // Validate the request
         $request->validate([
-            'document_type' => 'required|string|in:shipping_instruction,bill_of_lading,cargo_manifest,time_sheet,draught_survey',
+            'document_type' => 'required|string|in:shipping_instruction,SPAL,bill_of_lading,cargo_manifest,time_sheet,draught_survey',
             'document_file' => ['required', File::types(['pdf'])],
         ]);
 
         // Get the document detail by transaction_id and document_type
-        $document_detail = Document::where('transaction_id', $transactionId)
+        $document_detail = Document::where('order_transaction_id', $transactionId)
             ->where('document_type', $request->document_type)
             ->first();
 
@@ -158,7 +166,6 @@ class DocumentController extends Controller
 
             // Set file name
             $new_document_filename = $transactionId . '-' . $data['document_type'] . '.' . $new_document_file->extension();
-
 
             // Delete the old document_name file if it exists
             if ($document_detail->document_name) {
@@ -182,8 +189,21 @@ class DocumentController extends Controller
         $document_detail->update([
             'document_name' => $new_document_filename,
             'document_type' => $data['document_type'],
-
+            'uploaded_at' => Carbon::now(),
         ]);
+
+        // if ($data['document_type'] == 'shipping_instruction') {
+        //     $payment = Payment::create([
+        //         'order_transaction_id' => $transactionId,
+        //         'payment_type' => 'shipping_instruction',
+        //         'amount' => 0,
+        //         'status' => 'pending',
+        //     ]);
+        //     return $order;
+        //     // $order->update([
+        //     //     'shipping_instruction_uploaded_at' => Carbon::now(),
+        //     // ]);
+        // }
 
         return response()->json([
             'status' => 'success',

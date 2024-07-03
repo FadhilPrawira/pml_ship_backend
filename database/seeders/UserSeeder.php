@@ -24,12 +24,12 @@ class UserSeeder extends Seeder
             'approved_at' => now(),
         ]);
         User::factory()->create([
-            'role' => 'customer',
+            'role' => 'admin',
             'status' => 'approved',
-            'name' => 'User Test 6',
+            'name' => 'Admin Test',
 
-            'email' => 'user6@example.com',
-            'password' => Hash::make('password777'),
+            'email' => 'admin@example.com',
+            'password' => Hash::make('12345678'),
             'approved_at' => now(),
         ]);
         User::factory()->create([
@@ -37,8 +37,8 @@ class UserSeeder extends Seeder
             'status' => 'approved',
             'name' => 'Dani Sefianto',
 
-            'email' => 'sefiantodani@gmail.com',
-            'password' => Hash::make('password777'),
+            'email' => 'user@example.com',
+            'password' => Hash::make('12345678'),
             'approved_at' => now(),
         ]);
         User::factory()->create([

@@ -44,6 +44,7 @@ Route::patch('/users/{userId}/reject', [App\Http\Controllers\Api\UserController:
 // /orders?status=order_completed
 // /orders?status=order_canceled
 // /orders?status=order_rejected
+// /orders?status=on_process  -> for admin. To check all orders that are not order_pending, order_completed, order_canceled, order_rejected
 Route::get('/orders', [App\Http\Controllers\Api\OrderController::class, 'index'])->middleware('auth:sanctum');
 
 // Create order.
@@ -84,12 +85,12 @@ Route::post('/addConference', [App\Http\Controllers\Api\ConferenceController::cl
 Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])->middleware('auth:sanctum');
 
 
-Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWcheckQuotation'])->middleware('auth:sanctum');
+Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'checkQuotation'])->middleware('auth:sanctum');
 // Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
 // Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');
 
 // Upload document. All roles can access this route
-Route::post('/documents', [App\Http\Controllers\Api\DocumentController::class, 'store'])->middleware('auth:sanctum');
+// Route::post('/documents', [App\Http\Controllers\Api\DocumentController::class, 'store'])->middleware('auth:sanctum');
 
 // Get all documents from a specified transaction_id. All roles can access this route
 Route::get('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentController::class, 'show'])->middleware('auth:sanctum');
@@ -99,3 +100,19 @@ Route::put('/documents/{transactionId}', [App\Http\Controllers\Api\DocumentContr
 
 // Get payments from an authenticated user. Only customer can access this route
 Route::get('/payments', [App\Http\Controllers\Api\PaymentController::class, 'index'])->middleware('auth:sanctum');
+
+// Get payment options
+Route::get('/payment-options/{transactionId}', [App\Http\Controllers\Api\PaymentController::class, 'getPaymentOptions'])->middleware('auth:sanctum');
+
+// Create payment.
+Route::post('/payments', [App\Http\Controllers\Api\PaymentController::class, 'store'])->middleware('auth:sanctum');
+
+
+// Update document. All roles can access this route
+Route::put('/upload-payment-proof/{transactionId}', [App\Http\Controllers\Api\PaymentController::class, 'uploadPaymentProof'])->middleware('auth:sanctum');
+
+// Approve payment.
+Route::patch('/payments/{transactionId}/approve', [App\Http\Controllers\Api\PaymentController::class, 'approvePayment'])->middleware('auth:sanctum');
+
+// Reject payment.
+Route::patch('/payments/{transactionId}/reject', [App\Http\Controllers\Api\PaymentController::class, 'rejectPayment'])->middleware('auth:sanctum');

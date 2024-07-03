@@ -8,7 +8,6 @@ use App\Models\Conference;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class ConferenceController extends Controller

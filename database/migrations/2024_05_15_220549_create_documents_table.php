@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreign('order_transaction_id')->references('transaction_id')->on('orders')->onDelete('cascade');
 
             $table->string('document_name')->nullable();
-            $table->enum('document_type', ['shipping_instruction', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey']);
+            $table->enum('document_type', ['shipping_instruction', 'SPAL', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey']);
             $table->timestampTz('uploaded_at', precision: 0)->nullable();
             // max input document
             $table->timestampTz('max_input_document_at', precision: 0)->nullable();

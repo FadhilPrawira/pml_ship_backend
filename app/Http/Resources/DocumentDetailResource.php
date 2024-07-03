@@ -15,11 +15,12 @@ class DocumentDetailResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "transaction_id" => $this->transaction_id,
+            "transaction_id" => $this->order_transaction_id,
             "document" => [
                 "document_name" => $this->document_name,
-                "document_file" => $this->document_file,
+                "document_type" => $this->document_type,
                 "max_input_at" => $this->max_input_at,
+                "uploaded_at" => $this->uploaded_at,
                 "created_at" => $this->created_at,
                 "updated_at" => $this->updated_at
             ]

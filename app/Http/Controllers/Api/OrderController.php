@@ -3,18 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SummaryOrderRequest;
 use App\Http\Resources\OrderDetailResource;
-use App\Http\Resources\SummaryOrderResource;
-use App\Models\Document;
+use App\Http\Resources\VesselRouteResource;
 use App\Models\Order;
 use App\Models\Vessel;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Models\VesselRoute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class OrderController extends Controller
@@ -53,7 +48,7 @@ class OrderController extends Controller
         // Validate the request
         $request->validate([
             // This is based on migration status enum
-            'status' => 'string|in:order_pending,payment_pending,on_shipping,order_completed,order_canceled,order_rejected',
+            'status' => 'string|in:order_pending,payment_pending,on_shipping,order_completed,order_canceled,order_rejected,on_process',
         ]);
 
         // 'Order by' different at different status
@@ -74,11 +69,25 @@ class OrderController extends Controller
             $orderByRule = 'created_at';
         }
 
-        // Get the orders
-        $orders = Order::with(['portOfLoading', 'portOfDischarge'])
-            ->where('status', 'like', "%{$request->status}%")
-            ->orderBy($orderByRule, 'desc')
-            ->get();
+        // If status is on_process, exclude 'order_pending', 'order_canceled', 'order_rejected', 'order_completed'
+
+        if ($request->status == 'on_process') {
+            // Define the statuses you want to exclude
+            $excludedStatuses = ['order_pending', 'order_canceled', 'order_rejected', 'order_completed'];
+
+            // Get orders excluding the specified statuses
+            $orders = Order::with(['portOfLoading', 'portOfDischarge'])
+                ->whereNotIn('status', $excludedStatuses)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Get the orders
+            $orders = Order::with(['portOfLoading', 'portOfDischarge'])
+                ->where('status', 'like', "%{$request->status}%")
+                ->orderBy($orderByRule, 'desc')
+                ->get();
+        }
+
 
         if ($orders->isEmpty()) {
             return response()->json([
@@ -147,7 +156,7 @@ class OrderController extends Controller
         $order = Order::create($data);
 
         // Create default documents
-        $documentNames = ['shipping_instruction', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey'];
+        $documentNames = ['shipping_instruction', 'SPAL', 'bill_of_lading', 'cargo_manifest', 'time_sheet', 'draught_survey'];
         foreach ($documentNames as $documentName) {
             // Create the document for the order using the relationship
             $order->documents()->create([
@@ -168,7 +177,7 @@ class OrderController extends Controller
     public function show(String $transactionId)
     {
         // Get the order detail
-        $orderDetail = Order::with(['documents'])
+        $orderDetail = Order::with(['documents', 'payments'])
             ->where('transaction_id', $transactionId)
             ->first();
 
@@ -186,10 +195,11 @@ class OrderController extends Controller
             'status' => 'success',
             'message' => 'Get order detail success',
             'data' => new OrderDetailResource($orderDetail),
+            // 'data' => $orderDetail,
         ])->setStatusCode(200);
     }
 
-    public function NEWcheckQuotation(Request $request)
+    public function checkQuotation(Request $request)
     {
         // Validate the request
         $request->validate([
@@ -200,12 +210,8 @@ class OrderController extends Controller
             'cargo_weight' => 'required|string',
         ]);
 
-
         // Get the route details
-        $routeDetails = DB::table('vessel_routes')
-            ->join('ports as loading_port', 'vessel_routes.port_of_loading_id', '=', 'loading_port.id')
-            ->join('ports as discharge_port', 'vessel_routes.port_of_discharge_id', '=', 'discharge_port.id')
-            ->select('loading_port.name as port_of_loading_name', 'loading_port.latitude as port_of_loading_latitude', 'loading_port.longitude as port_of_loading_longitude', 'discharge_port.name as port_of_discharge_name', 'discharge_port.latitude as port_of_discharge_latitude', 'discharge_port.longitude as port_of_discharge_longitude', 'vessel_routes.day_estimation', 'vessel_routes.shipping_cost', 'vessel_routes.handling_cost', 'vessel_routes.biaya_parkir_pelabuhan')
+        $routeDetails = VesselRoute::with(['portOfLoading', 'portOfDischarge',])
             ->where('port_of_loading_id', $request->port_of_loading_id)
             ->where('port_of_discharge_id', $request->port_of_discharge_id)
             ->first();
@@ -214,12 +220,28 @@ class OrderController extends Controller
         $routeDetails->estimated_date_of_discharge = Carbon::createFromFormat('Y-m-d', $request->date_of_loading)->addDays(intval($routeDetails->day_estimation))->format('Y-m-d');
 
         // Get all vessel names
-        $vesselNames = Vessel::select('id', 'vessel_name')->get();
+        $vesselData = Vessel::select('id', 'vessel_name')->get();
 
         // Prepare the data
-        $result = $vesselNames->map(function ($vessel) use ($routeDetails) {
-            return array_merge($vessel->toArray(), (array) $routeDetails);
-        });
+        if ($routeDetails) {
+            $result = $vesselData->map(function ($vessel) use ($routeDetails) {
+                return new VesselRouteResource((object) array_merge($vessel->toArray(), [
+                    'port_of_loading_name' => $routeDetails->portOfLoading->name,
+                    'port_of_loading_latitude' => $routeDetails->portOfLoading->latitude,
+                    'port_of_loading_longitude' => $routeDetails->portOfLoading->longitude,
+                    'port_of_discharge_name' => $routeDetails->portOfDischarge->name,
+                    'port_of_discharge_latitude' => $routeDetails->portOfDischarge->latitude,
+                    'port_of_discharge_longitude' => $routeDetails->portOfDischarge->longitude,
+                    'day_estimation' => $routeDetails->day_estimation,
+                    'estimated_date_of_discharge' => $routeDetails->estimated_date_of_discharge,
+                    'shipping_cost' => $routeDetails->shipping_cost,
+                    'handling_cost' => $routeDetails->handling_cost,
+                    'biaya_parkir_pelabuhan' => $routeDetails->biaya_parkir_pelabuhan,
+                ]));
+            });
+        } else {
+            $result = [];
+        }
 
         return response()->json([
             'status' => 'success',
@@ -261,7 +283,6 @@ class OrderController extends Controller
             $order = Order::with('documents')
                 ->where('transaction_id', $transactionId)->first();
 
-            return $order;
             // Check if the conference exists
             if (!$order) {
                 return response()->json([
@@ -276,23 +297,28 @@ class OrderController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Order status is not pending',
-                    'data' => $order,
+                    'data' => new OrderDetailResource($order),
                 ], 400);
             }
             // Change the status to 'payment_pending'
             $order->status = "payment_pending";
             // Set the approved date
-            $order->documents->max_input_document_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
+            $order->negotiation_or_order_approved_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
 
-            // Set the max input document date
+            // Set the max input document date for first document (shipping_instruction)
+            // Get the first document
+            $first_document = $order->documents->first();
+
             // Add 2 days from approved date, and make it to 23:59:59/end of the day
-            $order->max_input_document_at = Carbon::parse($request->approved_at)->addDays(2)->endOfDay()->format('Y-m-d H:i:s');
+            $first_document->max_input_document_at = Carbon::parse($request->approved_at)->addDays(2)->endOfDay()->format('Y-m-d H:i:s');
+            $first_document->save();
+
             $order->save();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order approved.',
-                'data' => $order,
+                'data' => new OrderDetailResource($order),
             ])->setStatusCode(200);
         } else {
             return response()->json([
@@ -329,7 +355,7 @@ class OrderController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Order status is not pending',
-                    'data' => $order,
+                    'data' => new OrderDetailResource($order),
                 ])->setStatusCode(400);
             }
 
@@ -341,7 +367,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order rejected.',
-                'data' => $order,
+                'data' => new OrderDetailResource($order),
             ])->setStatusCode(200);
         } else {
             return response()->json([
@@ -370,6 +396,15 @@ class OrderController extends Controller
                     'message' => 'Order not found',
                     'data' => new stdClass(), // return empty object
                 ])->setStatusCode(404);
+            }
+
+            // Check if the status is 'order_pending'
+            if ($order->status != 'order_pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order status is not pending',
+                    'data' => new OrderDetailResource($order),
+                ])->setStatusCode(400);
             }
 
             // Change the status to 'order_canceled'

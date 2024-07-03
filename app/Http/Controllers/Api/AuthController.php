@@ -3,16 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UnauthenticatedResource;
-use App\Http\Resources\UserLoginFailedResource;
-use App\Http\Resources\UserLoginResource;
 use App\Http\Resources\UserLoginSuccessResource;
-use App\Http\Resources\UserRegisterResource;
 use App\Http\Resources\UserRegisterSuccessResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rules\File;

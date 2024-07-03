@@ -55,6 +55,21 @@ class OrderDetailResource extends JsonResource
                 'tax' => $this->tax,
                 'total_bill' => $this->total_bill,
                 'cumulative_paid' => $this->cumulative_paid,
+                'payments' => collect($this->payments)->map(function ($payment) {
+                    return [
+                        'payment_date' => $payment->payment_date,
+                        'payment_due_date' => $payment->payment_due_date,
+                        'payment_amount' => $payment->payment_amount,
+                        'payment_proof_document' => $payment->payment_proof_document,
+                        'installment_number' => $payment->installment_number,
+                        'total_installments' => $payment->total_installments,
+                        'payment_status' => $payment->payment_status,
+                        'approved_at' => $payment->approved_at,
+                        'rejected_at' => $payment->rejected_at,
+                        'created_at' => $payment->created_at,
+                        'updated_at' => $payment->updated_at,
+                    ];
+                }),
             ],
             'rating' => [
                 'star' => $this->rating_star,
