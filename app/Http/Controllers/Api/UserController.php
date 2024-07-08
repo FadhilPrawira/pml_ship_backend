@@ -7,9 +7,13 @@ use App\Http\Resources\UserDetailResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rules\Password;
 use stdClass;
+
+use function PHPUnit\Framework\isEmpty;
 
 class UserController extends Controller
 {
@@ -112,19 +116,21 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
-        // TODO: Add update password
+        // TODO: Add update akta perusahaan
         // Validate the request
         $request->validate([
             'name' => ['max:100'],
             'phone' => ['max:20'],
             'email' => ['max:100', 'email'],
             // 'password' => [Password::min(8), 'max:255'],
+            // If the password is not empty, then validate the password
+            'password' => ['nullable', Password::min(8), 'max:255'],
             'company_name' => ['max:255'],
             'company_address' => ['max:255'],
             'company_phone' => ['max:20'],
             'company_email' => ['email', 'max:100'],
             'company_NPWP' => ['max:20'],
-            'company_akta' => ['required', File::types(['pdf'])],
+            'company_akta' => [File::types(['pdf'])],
         ]);
 
         // Get the authenticated user
@@ -159,18 +165,26 @@ class UserController extends Controller
             $new_company_akta_file = $user->company_akta;
         }
 
-        // Update the user
+        // Update the user.
         $user->update([
-            'name' => $data['name'],
-            'phone' => $data['phone'],
-            'email' => $data['email'],
-            'company_name' => $data['company_name'],
-            'company_address' => $data['company_address'],
-            'company_phone' => $data['company_phone'],
-            'company_email' => $data['company_email'],
-            'company_NPWP' => $data['company_NPWP'],
-            'company_akta' => $new_company_akta_filename,
+            'name' => $data['name'] ?? $user->name,
+            'phone' => $data['phone'] ?? $user->phone,
+            'email' => $data['email'] ?? $user->email,
+            // If key password is in the request and not null, then update the password. If not, then use the old password
+            'password' => $data['password'] ? Hash::make($data['password']) : $user->password,
+            'company_name' => $data['company_name'] ?? $user->company_name,
+            'company_address' => $data['company_address'] ?? $user->company_address,
+            'company_phone' => $data['company_phone'] ?? $user->company_phone,
+            'company_email' => $data['company_email'] ?? $user->company_email,
+            'company_NPWP' => $data['company_NPWP'] ?? $user->company_NPWP,
+
+            'company_akta' => $new_company_akta_filename ?? $user->company_akta,
         ]);
+
+
+
+
+
 
         return response()->json([
             'status' => 'success',

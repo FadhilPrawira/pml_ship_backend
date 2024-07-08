@@ -18,7 +18,9 @@ Route::get('/currencies', [App\Http\Controllers\Api\CurrencyController::class, '
 Route::get('/user', [App\Http\Controllers\Api\UserController::class, 'getUserDetail'])->middleware('auth:sanctum');
 
 // update authenticated user info. All roles can access this route
-Route::put('/user', [App\Http\Controllers\Api\UserController::class, 'update'])->middleware('auth:sanctum');
+// This use POST method because Laravel doesn't support PUT method for updating file
+// Use POST method with '_method' key and 'PUT' value
+Route::post('/user', [App\Http\Controllers\Api\UserController::class, 'update'])->middleware('auth:sanctum');
 
 // Get all users that have role 'customer'. If 'status' specified, then get all users with that status. Only admin can access this route
 // This is based on migration status enum
@@ -86,8 +88,6 @@ Route::get('/ports', [App\Http\Controllers\Api\PortController::class, 'index'])-
 
 
 Route::post('/checkQuotation', [App\Http\Controllers\Api\OrderController::class, 'checkQuotation'])->middleware('auth:sanctum');
-// Route::patch('/placeQuotation', [App\Http\Controllers\Api\OrderController::class, 'placeQuotation'])->middleware('auth:sanctum');
-// Route::patch('/NEWplaceQuotation', [App\Http\Controllers\Api\OrderController::class, 'NEWplaceQuotation'])->middleware('auth:sanctum');
 
 // Upload document. All roles can access this route
 // Route::post('/documents', [App\Http\Controllers\Api\DocumentController::class, 'store'])->middleware('auth:sanctum');
