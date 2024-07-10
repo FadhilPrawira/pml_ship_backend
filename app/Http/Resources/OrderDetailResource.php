@@ -18,7 +18,15 @@ class OrderDetailResource extends JsonResource
             'status' => $this->status,
             'transaction_id' => $this->transaction_id,
             'customer_company_name' => $this->user->company_name,
-            "vessel_name" => $this->vesselName['vessel_name'],
+            'vessel' => [
+                "vessel_name" => $this->vesselName['vessel_name'],
+                "vessel_lat" => $this->vesselName['vessel_lat'],
+                "vessel_lon" => $this->vesselName['vessel_lon'],
+                "vessel_vts_speed_knot" => $this->vesselName['vessel_vts_speed_knot'],
+                "vessel_calc_speed_knot" => $this->vesselName['vessel_calc_speed_knot'],
+                "vessel_heading_degree" => $this->vesselName['vessel_heading_degree'],
+                "pml_last_updated_at" => $this->vesselName['pml_last_updated_at'],
+            ],
             'loading' => [
                 'port' => $this->portOfLoading['name'],
                 'date' => $this->date_of_loading,

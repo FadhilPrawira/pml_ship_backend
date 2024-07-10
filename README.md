@@ -16,4 +16,6 @@ To get started with Laravel, follow these steps:
 8. Start the development server: `php artisan serve`
 
 ## TODO
-Implement authorization with Laravel Spatie
+1. Implement authorization with Laravel Spatie
+2. Schedule get data from PML API every hour and update into our database
+3. Schedule get data from Freecurrency API every day

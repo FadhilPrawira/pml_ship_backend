@@ -20,4 +20,20 @@ class Vessel extends Model
         'pml_internal_vessel_id',
         'pml_last_updated_at'
     ];
+
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'vessel_lat' => 'double',
+            'vessel_lon' => 'double',
+            'pml_last_updated_at' => 'datetime',
+
+        ];
+    }
 }

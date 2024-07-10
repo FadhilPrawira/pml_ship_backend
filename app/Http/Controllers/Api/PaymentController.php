@@ -358,6 +358,11 @@ class PaymentController extends Controller
         $payment->approved_at = Carbon::parse($request->approved_at)->format('Y-m-d H:i:s');
         $payment->save();
 
+        // Update the order status
+        $order = Order::where('transaction_id', $transactionId)->first();
+        $order->status = 'on_shipping';
+        $order->save();
+
         return response()->json([
             'status' => 'success',
             'message' => 'payment approved.',

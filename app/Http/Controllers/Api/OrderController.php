@@ -177,7 +177,7 @@ class OrderController extends Controller
     public function show(String $transactionId)
     {
         // Get the order detail
-        $orderDetail = Order::with(['documents', 'payments'])
+        $orderDetail = Order::with(['documents', 'payments', 'vesselName'])
             ->where('transaction_id', $transactionId)
             ->first();
 
