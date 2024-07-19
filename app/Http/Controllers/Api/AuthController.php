@@ -96,7 +96,7 @@ class AuthController extends Controller
 
 
         // Store the image in the storage
-        $company_akta_file->storeAs('public/file', $company_akta_filename);
+        $company_akta_file->storeAs('public/documents', $company_akta_filename);
         // http://localhost:8000/storage/file/YOUR_IMAGE_NAME.EXTENSION
 
         // Hash the password

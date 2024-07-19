@@ -152,7 +152,7 @@ class UserController extends Controller
             // Delete the old company_akta file if it exists
             if ($user->company_akta) {
                 // path to the company_akta file
-                $old_company_akta = 'public/file/' . $user->image;
+                $old_company_akta = 'public/documents/' . $user->image;
                 Storage::delete($old_company_akta);
             }
 
