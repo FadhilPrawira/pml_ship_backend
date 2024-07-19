@@ -99,8 +99,8 @@ class PaymentController extends Controller
         // Validate data
         $request->validate([
             'transaction_id' => 'required|string',
-            'payment_amount' => 'required|numeric',
-            'total_installments' => 'required|numeric',
+            'total_bill' => 'required|numeric',
+            'total_installments' => 'required',
         ]);
 
         // Get all request data
@@ -130,13 +130,6 @@ class PaymentController extends Controller
             ])->setStatusCode(400);
         }
 
-
-        // Set installment_number to 1
-        $data['installment_number'] = 1;
-        // Set status to pending
-        $data['payment_status'] = 'pending';
-
-
         // Read the 'shipping_instruction' uploaded date
         $shippingInstructionDocument = Document::where('order_transaction_id', $data['transaction_id'])
             ->where('document_type', 'shipping_instruction')
@@ -148,21 +141,30 @@ class PaymentController extends Controller
         // Set payment due date, add 2 days from shipping_instruction uploaded date
         $paymentDueDate = Carbon::parse($shippingInstructionDocumentUploadedAt)->addDays(2)->endOfDay()->format('Y-m-d H:i:s');
 
+        $createdPayments = [];
 
-        // Create new payment
-        $payment = Payment::create([
-            'order_transaction_id' => $data['transaction_id'],
-            'payment_due_date' => $paymentDueDate,
-            'payment_amount' => $data['payment_amount'],
-            'installment_number' => $data['installment_number'],
-            'total_installments' => $data['total_installments'],
-            'payment_status' => $data['payment_status'],
-        ]);
+        // Loop through the number of total installments
+        for ($i = 1; $i <= $request->total_installments; $i++) {
+            // Calculate payment amount for each installment
+            $paymentAmount = round(($request->total_bill / $request->total_installments), 2);
+            // Create new payment for each installment
+            $newPayment = Payment::create([
+                'order_transaction_id' => $data['transaction_id'],
+                'payment_due_date' => $paymentDueDate, // You might want to adjust this for each installment
+                'payment_amount' => $paymentAmount, // Adjust if needed for each installment
+                'installment_number' => $i, // Current installment number
+                'total_installments' => $request->total_installments,
+                'payment_status' => 'pending',
+            ]);
+
+            // Add the new payment to the array of created payments
+            $createdPayments[] = $newPayment;
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Payment created',
-            'data' => $payment,
+            'data' => $createdPayments,
         ]);
     }
 
@@ -209,7 +211,10 @@ class PaymentController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Payment options found',
-            'data' => new PaymentOptionsResource($paymentOptions),
+            'data' => [
+                'total_bill' => $totalBill,
+                'payment_options' => new PaymentOptionsResource($paymentOptions),
+            ]
         ]);
     }
     /**

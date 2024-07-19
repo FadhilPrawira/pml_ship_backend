@@ -22,7 +22,7 @@ class Payment extends Model
         'payment_amount',
         'payment_proof_document',
         'installment_number',
-        'total_installment',
+        'total_installments',
         'payment_status',
     ];
 

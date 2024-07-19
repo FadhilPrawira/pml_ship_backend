@@ -63,6 +63,9 @@ Route::patch('/orders/{transactionId}/reject', [App\Http\Controllers\Api\OrderCo
 // Cancel order. Only customer can access this route
 Route::patch('/orders/{transactionId}/cancel', [App\Http\Controllers\Api\OrderController::class, 'cancelOrder'])->middleware('auth:sanctum');
 
+// Complete order. Only admin can access this route
+Route::patch('/orders/{transactionId}/complete', [App\Http\Controllers\Api\OrderController::class, 'setOrderToCompleted'])->middleware('auth:sanctum');
+
 // Get all conferences. If 'status' specified, then get all conferences with that status. Only admin can access this route
 // This is based on migration status enum
 // /conferences?status=pending

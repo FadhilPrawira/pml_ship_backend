@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderCollectionResource;
 use App\Http\Resources\OrderDetailResource;
 use App\Http\Resources\VesselRouteResource;
 use App\Models\Order;
@@ -99,7 +100,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => $request->has('status') ? 'Get all orders by status ' . $request->status . ' success' : 'Get orders list success',
-            'data' => OrderDetailResource::collection($orders)
+            'data' => OrderCollectionResource::collection($orders)
         ])->setStatusCode(200);
     }
 
@@ -421,6 +422,55 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to cancel order data. Must be an customer'
+            ])->setStatusCode(403);
+        }
+    }
+
+
+    public function setOrderToCompleted(string $transactionId, Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'completed_at' => 'required|date',
+        ]);
+        // Get the authenticated user
+        $user = $request->user();
+        if ($user->role == 'admin') {
+            // Get the conference
+            $order = Order::where('transaction_id', $transactionId)->first();
+
+            // Check if the conference exists
+            if (!$order) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order not found',
+                    'data' => new stdClass(), // return empty object
+                ])->setStatusCode(404);
+            }
+
+            // Check if the status is 'on_shipping'
+            if ($order->status != 'on_shipping') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order status is not on_shipping',
+                    'data' => new OrderDetailResource($order),
+                ])->setStatusCode(400);
+            }
+
+            // Change the status to 'order_canceled'
+            $order->status = "order_completed";
+            // $order->order_canceled_at = Carbon::parse($request->completed_at)->format('Y-m-d H:i:s');
+            $order->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order completed.',
+                'data' => new OrderDetailResource($order),
+            ])->setStatusCode(200);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to complete order data. Must be an admin'
             ])->setStatusCode(403);
         }
     }
