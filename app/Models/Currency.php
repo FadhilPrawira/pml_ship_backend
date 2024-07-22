@@ -19,4 +19,20 @@ class Currency extends Model
         'currencies',
         'rate'
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'base_currency' => 'string',
+            'currencies' => 'string',
+            'rate' => 'float',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
 }

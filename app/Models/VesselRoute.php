@@ -18,6 +18,22 @@ class VesselRoute extends Model
         'biaya_parkir_pelabuhan',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'day_estimation' => 'int',
+            'shipping_cost' => 'int',
+            'handling_cost' => 'int',
+            'biaya_parkir_pelabuhan' => 'int',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
     // FIX
     public function portOfLoading()
     {

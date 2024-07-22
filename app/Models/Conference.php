@@ -29,6 +29,26 @@ class Conference extends Model
         'conference_rejected_at',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => 'string',
+            'conference_type' => 'string',
+            'location' => 'string',
+            'conference_date' => 'date',
+            'conference_time' => 'string',
+            'conference_approved_at' => 'datetime',
+            'conference_rejected_at' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
     // FIX
     public function order()
     {

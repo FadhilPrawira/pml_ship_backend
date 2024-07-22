@@ -31,6 +31,8 @@ class Document extends Model
     protected function casts(): array
     {
         return [
+            'document_name' => 'string',
+            'document_type' => 'string',
             'max_input_document_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

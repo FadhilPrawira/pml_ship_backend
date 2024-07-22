@@ -70,6 +70,30 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'transaction_id' => 'string',
+
+            'user_id' => 'int',
+            'shipper_name' => 'string',
+            'shipper_address' => 'string',
+            'consignee_name' => 'string',
+            'consignee_address' => 'string',
+            'port_of_loading_id' => 'int',
+            'port_of_discharge_id' => 'int',
+            'vessel_id' => 'int',
+            'date_of_loading' => 'date',
+            'date_of_discharge' => 'date',
+            'status' => 'string',
+            'cargo_description' => 'string',
+            'cargo_weight' => 'string',
+            'shipping_cost' => 'int',
+            'handling_cost' => 'int',
+            'biaya_parkir_pelabuhan' => 'int',
+            'tax' => 'int',
+            'total_bill' => 'int',
+            'cumulative_paid' => 'int',
+            'rating_star' => 'int',
+            'review' => 'string',
+
             'negotiation_approved_at' => 'datetime',
             'order_rejected_at' => 'datetime',
             'order_canceled_at' => 'datetime',

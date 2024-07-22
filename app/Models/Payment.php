@@ -26,6 +26,26 @@ class Payment extends Model
         'payment_status',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'payment_date' => 'date',
+            'payment_due_date' => 'date',
+            'payment_amount' => 'float',
+            'payment_proof_document' => 'string',
+            'installment_number' => 'int',
+            'total_installments' => 'int',
+            'payment_status' => 'string',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
     // FIX
     public function order()
     {
