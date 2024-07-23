@@ -33,8 +33,6 @@ class Port extends Model
             'unlocode' => 'string',
             'latitude' => 'string',
             'longitude' => 'string',
-            'open_time' => 'time',
-            'close_time' => 'time',
             'image_url' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
