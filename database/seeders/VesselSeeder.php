@@ -187,20 +187,20 @@ class VesselSeeder extends Seeder
         // Insert the latest entries into the database using the Vessel model
         foreach ($latestEntries as $entry) {
 
-            // Find the vessel by internal ID
-            $vessel = Vessel::where('pml_internal_vessel_id', $entry['vessel_id'])->first();
+            // // Find the vessel by internal ID
+            // $vessel = Vessel::where('pml_internal_vessel_id', $entry['vessel_id'])->first();
 
-            if ($vessel) {
-                // Reset specific fields to null
-                $vessel->update([
-                    'vessel_lat' => "-6.867798811083504",
-                    'vessel_lon' => "110.37628806965394",
-                    'vessel_vts_speed_knot' => "3",
-                    'vessel_calc_speed_knot' => "3",
-                    'vessel_heading_degree' => "135",
-                    'pml_last_updated_at' => $floorDateTime,
-                ]);
-            }
+            // if ($vessel) {
+            //     // Reset specific fields to null
+            //     $vessel->update([
+            //         'vessel_lat' => "-6.867798811083504",
+            //         'vessel_lon' => "110.37628806965394",
+            //         'vessel_vts_speed_knot' => "3",
+            //         'vessel_calc_speed_knot' => "3",
+            //         'vessel_heading_degree' => "135",
+            //         'pml_last_updated_at' => $floorDateTime,
+            //     ]);
+            // }
 
             // Update the vessel if there is a match in txid or create the vessel data if there is no match
             Vessel::updateOrCreate(
