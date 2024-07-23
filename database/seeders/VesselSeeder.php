@@ -108,8 +108,12 @@ class VesselSeeder extends Seeder
 
         // Create the vessels in the database
         foreach ($vessels as $vessel) {
-            Vessel::create($vessel);
+            Vessel::updateOrCreate(
+                ['pml_internal_vessel_id' => $vessel['pml_internal_vessel_id']],
+                $vessel
+            );
         }
+
 
         // Initialize a new Guzzle client
         $client = new Client();
