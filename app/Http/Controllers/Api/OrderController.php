@@ -78,12 +78,28 @@ class OrderController extends Controller
 
             // Get orders excluding the specified statuses
             $orders = Order::with(['portOfLoading', 'portOfDischarge'])
+                // When user is customer, only get the orders that belong to the customer
+                ->when(
+                    $request->user()
+                        ->role == 'customer',
+                    function ($query) use ($request) {
+                        return $query->where('user_id', $request->user()->id);
+                    }
+                )
                 ->whereNotIn('status', $excludedStatuses)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
             // Get the orders
             $orders = Order::with(['portOfLoading', 'portOfDischarge'])
+                // When user is customer, only get the orders that belong to the customer
+                ->when(
+                    $request->user()
+                        ->role == 'customer',
+                    function ($query) use ($request) {
+                        return $query->where('user_id', $request->user()->id);
+                    }
+                )
                 ->where('status', 'like', "%{$request->status}%")
                 ->orderBy($orderByRule, 'desc')
                 ->get();
